@@ -6,6 +6,7 @@ import { EntryView } from './pages/EntryView'
 import { Compilation } from './pages/Compilation'
 import { Login } from './pages/Login'
 import { PrivacyPolicy } from './pages/PrivacyPolicy'
+import { TermsOfService } from './pages/TermsOfService'
 import { Settings } from './pages/Settings'
 import { AdminReviews } from './pages/AdminReviews'
 import { getAllDrafts } from './utils/archive'
@@ -19,19 +20,25 @@ type View =
   | { name: 'editor'; category: Category; prompt: WritingPrompt }
   | { name: 'archive' }
   | { name: 'entry'; entry: DraftEntry; from: 'dashboard' | 'archive' }
-  | { name: 'compilation' }
+  | { name: 'compilation'; from: 'archive' | 'settings' }
   | { name: 'settings' }
   | { name: 'admin' }
 
 function App() {
   const [view, setView] = useState<View>({ name: 'dashboard' })
   const [showPrivacy, setShowPrivacy] = useState(false)
+  const [showTerms, setShowTerms] = useState(false)
   const { session, loading } = useSession()
   const { syncing } = useEntrySync(session?.user.id ?? null)
 
   if (loading) return null
-  if (showPrivacy) return <PrivacyPolicy onBack={() => setShowPrivacy(false)} />
-  if (!session) return <Login onOpenPrivacy={() => setShowPrivacy(true)} />
+  if (showPrivacy) {
+    return <PrivacyPolicy onBack={() => setShowPrivacy(false)} onOpenTerms={() => setShowTerms(true)} />
+  }
+  if (showTerms) return <TermsOfService onBack={() => setShowTerms(false)} />
+  if (!session) {
+    return <Login onOpenPrivacy={() => setShowPrivacy(true)} onOpenTerms={() => setShowTerms(true)} />
+  }
   if (syncing) return null
 
   if (view.name === 'editor') {
@@ -50,7 +57,7 @@ function App() {
       <Archive
         onBack={() => setView({ name: 'dashboard' })}
         onOpenEntry={(entry) => setView({ name: 'entry', entry, from: 'archive' })}
-        onOpenCompilation={() => setView({ name: 'compilation' })}
+        onOpenCompilation={() => setView({ name: 'compilation', from: 'archive' })}
       />
     )
   }
@@ -65,7 +72,12 @@ function App() {
   }
 
   if (view.name === 'compilation') {
-    return <Compilation entries={getAllDrafts()} onBack={() => setView({ name: 'archive' })} />
+    return (
+      <Compilation
+        entries={getAllDrafts()}
+        onBack={() => setView(view.from === 'settings' ? { name: 'settings' } : { name: 'archive' })}
+      />
+    )
   }
 
   if (view.name === 'settings') {
@@ -74,6 +86,8 @@ function App() {
         session={session}
         onBack={() => setView({ name: 'dashboard' })}
         onLogout={() => supabase.auth.signOut()}
+        onOpenTerms={() => setShowTerms(true)}
+        onOpenCompilation={() => setView({ name: 'compilation', from: 'settings' })}
       />
     )
   }

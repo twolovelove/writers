@@ -1,4 +1,4 @@
-import { ArrowLeft, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
+import { ArrowLeft, LogOut, ShieldCheck, Trash2, FileDown } from 'lucide-react'
 import { supabase } from '../lib/supabaseClient'
 import { deleteAllEntries } from '../lib/entries'
 import type { Session } from '@supabase/supabase-js'
@@ -7,6 +7,8 @@ interface Props {
   session: Session
   onBack: () => void
   onLogout: () => void
+  onOpenTerms: () => void
+  onOpenCompilation: () => void
 }
 
 function clearLocalWritingData() {
@@ -20,7 +22,7 @@ function clearLocalWritingData() {
 
 // Page: 개인정보 안내와 데이터 삭제/회원 탈퇴를 다루는 설정 화면.
 // 글 데이터는 로그인 계정에 연결되어 Supabase에 백업되며, 본인만 열람할 수 있다.
-export function Settings({ session, onBack, onLogout }: Props) {
+export function Settings({ session, onBack, onLogout, onOpenTerms, onOpenCompilation }: Props) {
   const handleDeleteData = () => {
     if (
       !window.confirm(
@@ -35,7 +37,7 @@ export function Settings({ session, onBack, onLogout }: Props) {
   const handleWithdraw = async () => {
     if (
       !window.confirm(
-        '회원 탈퇴를 진행할까요? 계정에 백업된 글과 이 기기의 글 데이터가 모두 삭제되고 로그아웃돼요.',
+        '회원 탈퇴를 진행할까요? 계정에 백업된 글과 이 기기의 글 데이터가 모두 삭제되고 로그아웃돼요. 삭제된 글은 복구할 수 없어요.',
       )
     )
       return
@@ -104,18 +106,37 @@ export function Settings({ session, onBack, onLogout }: Props) {
       <section className="rounded-2xl border border-paper-line p-6">
         <p className="text-sm text-ink">회원 탈퇴</p>
         <p className="mt-1.5 text-xs leading-relaxed text-ink-soft">
-          계정에 백업된 글과 이 기기의 글 데이터를 모두 지우고 로그아웃해요. 로그인 계정 자체
-          (이메일 등)를 완전히 삭제하려면 별도 절차가 필요해 관리자에게 문의해주세요.
+          계정에 백업된 글과 이 기기의 글 데이터를 모두 지우고 로그아웃해요. 한 번 삭제하면 되돌릴
+          수 없으니, 탈퇴 전에 지금까지 쓴 글을 모음집에서 PDF로 저장해두는 걸 권장해요. 로그인 계정
+          자체(이메일 등)를 완전히 삭제하려면 별도 절차가 필요해 관리자에게 문의해주세요.
         </p>
-        <button
-          type="button"
-          onClick={handleWithdraw}
-          className="mt-4 flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-xs tracking-wide text-paper transition-colors hover:bg-accent-indigo"
-        >
-          <Trash2 size={13} strokeWidth={1.75} />
-          회원 탈퇴
-        </button>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onOpenCompilation}
+            className="flex items-center gap-1.5 rounded-full border border-paper-line px-4 py-2 text-xs text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+          >
+            <FileDown size={13} strokeWidth={1.75} />
+            모음집 PDF로 저장하기
+          </button>
+          <button
+            type="button"
+            onClick={handleWithdraw}
+            className="flex items-center gap-1.5 rounded-full bg-ink px-4 py-2 text-xs tracking-wide text-paper transition-colors hover:bg-accent-indigo"
+          >
+            <Trash2 size={13} strokeWidth={1.75} />
+            회원 탈퇴
+          </button>
+        </div>
       </section>
+
+      <button
+        type="button"
+        onClick={onOpenTerms}
+        className="mt-6 w-fit text-xs text-ink-soft/60 underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
+      >
+        이용약관 보기
+      </button>
     </div>
   )
 }

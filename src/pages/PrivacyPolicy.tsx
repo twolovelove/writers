@@ -3,11 +3,12 @@ import { SUPPORT_EMAIL } from '../config'
 
 interface Props {
   onBack: () => void
+  onOpenTerms?: () => void
 }
 
 // Page: 로그인 화면에서 이동할 수 있는 개인정보처리방침. 로그인 여부와 무관하게 볼 수 있어야 하므로
 // App.tsx에서 세션 체크보다 앞단에서 라우팅된다.
-export function PrivacyPolicy({ onBack }: Props) {
+export function PrivacyPolicy({ onBack, onOpenTerms }: Props) {
   return (
     <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-6 py-12 sm:py-16">
       <button
@@ -86,6 +87,16 @@ export function PrivacyPolicy({ onBack }: Props) {
           </p>
         </section>
       </div>
+
+      {onOpenTerms && (
+        <button
+          type="button"
+          onClick={onOpenTerms}
+          className="mt-10 w-fit text-xs text-ink-soft/60 underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
+        >
+          이용약관 보기
+        </button>
+      )}
     </div>
   )
 }

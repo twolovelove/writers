@@ -79,11 +79,13 @@ export function ReviewWidget({ session }: Props) {
             className="animate-pop-in w-full max-w-sm rounded-2xl border border-paper-line bg-paper-cream p-6 shadow-card"
           >
             <div className="mb-4 flex items-start justify-between gap-3">
-              <p className="text-sm text-ink-soft">어떤 기능을 원하세요? 또는 잘 쓰고 계신가요?</p>
+              {status !== 'sent' && (
+                <p className="text-sm text-ink-soft">어떤 기능을 원하세요? 또는 잘 쓰고 계신가요?</p>
+              )}
               <button
                 type="button"
                 onClick={handleClose}
-                className="shrink-0 text-ink-soft/50 transition-colors hover:text-ink"
+                className="ml-auto shrink-0 text-ink-soft/50 transition-colors hover:text-ink"
               >
                 <X size={16} strokeWidth={1.75} />
               </button>

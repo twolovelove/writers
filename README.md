@@ -43,7 +43,13 @@ VITE_SUPABASE_ANON_KEY=your-anon-public-key
 
 ### Supabase 설정
 
-`supabase/schema.sql`을 Supabase SQL 편집기에서 실행해야 글 데이터 백업(`entries`)과 리뷰 위젯·관리자 페이지(`reviews`)가 동작합니다. 관리자 이메일은 [src/config.ts](src/config.ts)의 `ADMIN_EMAIL`과 `schema.sql`의 RLS 정책이 항상 같은 값이어야 합니다.
+`supabase/schema.sql`을 Supabase SQL 편집기에서 실행해야 글 데이터 백업(`entries`)과 리뷰 위젯·관리자 페이지(`reviews`, `admins`)가 동작합니다. 관리자 권한은 `admins` 테이블에 등록된 계정인지 여부로만 판단하므로(프론트엔드·RLS 공통 기준), 관리자를 추가하려면 SQL 편집기에서 다음을 실행하세요.
+
+```sql
+insert into admins (user_id)
+select id from auth.users where email = '관리자로_지정할_이메일'
+on conflict do nothing;
+```
 
 ## 스크립트
 

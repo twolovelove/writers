@@ -6,8 +6,8 @@ import { CompletedTodayCard } from '../components/CompletedTodayCard'
 import { ReviewWidget } from '../components/ReviewWidget'
 import { getPromptForDate } from '../data/prompts'
 import { useDailyLock } from '../hooks/useDailyLock'
+import { useIsAdmin } from '../hooks/useIsAdmin'
 import { formatKoreanDate } from '../utils/date'
-import { ADMIN_EMAIL } from '../config'
 import type { Session } from '@supabase/supabase-js'
 import type { Category, DraftEntry, WritingPrompt } from '../types'
 
@@ -38,7 +38,7 @@ export function Dashboard({
   const { isLockedToday, completedEntry, remainingMs } = useDailyLock()
   const today = new Date()
   const prompt = getPromptForDate(today, category)
-  const isAdmin = session.user.email === ADMIN_EMAIL
+  const isAdmin = useIsAdmin(session.user.id)
 
   const handleSelectCategory = (next: Category) => {
     setCategory(next)

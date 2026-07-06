@@ -13,7 +13,7 @@ interface Review {
   created_at: string
 }
 
-// Page: 관리자 전용 리뷰 목록. RLS 정책상 ADMIN_EMAIL 계정으로 로그인했을 때만
+// Page: 관리자 전용 리뷰 목록. RLS 정책상 admins 테이블에 등록된 계정으로 로그인했을 때만
 // 실제 데이터가 조회된다 (다른 계정은 빈 목록만 보게 됨).
 export function AdminReviews({ onBack }: Props) {
   const [reviews, setReviews] = useState<Review[]>([])

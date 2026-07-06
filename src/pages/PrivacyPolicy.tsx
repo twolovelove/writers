@@ -1,5 +1,5 @@
 import { ArrowLeft } from 'lucide-react'
-import { ADMIN_EMAIL } from '../config'
+import { SUPPORT_EMAIL } from '../config'
 
 interface Props {
   onBack: () => void
@@ -82,7 +82,7 @@ export function PrivacyPolicy({ onBack }: Props) {
           <p>
             개인정보 처리와 관련한 문의는 아래 이메일로 연락해주세요.
             <br />
-            <span className="text-ink">{ADMIN_EMAIL}</span>
+            <span className="text-ink">{SUPPORT_EMAIL}</span>
           </p>
         </section>
       </div>

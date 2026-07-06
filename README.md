@@ -1,5 +1,7 @@
 # 매일 1,000자 글쓰기
 
+[![CI](https://github.com/twolovelove/writers/actions/workflows/ci.yml/badge.svg)](https://github.com/twolovelove/writers/actions/workflows/ci.yml)
+
 하루에 1,000자씩, 매일 조금씩 글쓰기 습관을 만들어주는 웹앱입니다. 카테고리별 글감을 받아 원고지처럼 편안하게 글을 쓰고, 완료하면 규칙 기반 첨삭 노트를 받아볼 수 있습니다.
 
 ## 주요 기능
@@ -59,3 +61,7 @@ on conflict do nothing;
 | `npm run build` | 타입 체크 후 프로덕션 빌드 |
 | `npm run preview` | 빌드 결과 미리보기 |
 | `npm run lint` | Oxlint 실행 |
+
+## CI
+
+`main` 브랜치에 push하거나 그쪽으로 PR을 열면 [GitHub Actions](.github/workflows/ci.yml)가 lint와 타입 체크·빌드를 자동으로 실행합니다. 아직 별도 배포(호스팅)는 연결돼 있지 않습니다.

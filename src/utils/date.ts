@@ -18,6 +18,12 @@ export function formatShortKoreanDate(isoDate: string): string {
   return `${m}월 ${d}일`
 }
 
+// "YYYY-MM" 형식의 월 문자열을 "2026년 7월" 형식으로 변환
+export function formatKoreanYearMonth(yearMonth: string): string {
+  const [y, m] = yearMonth.split('-').map(Number)
+  return `${y}년 ${m}월`
+}
+
 // 자정(다음 날 00:00)까지 남은 밀리초
 export function msUntilNextMidnight(): number {
   const now = new Date()

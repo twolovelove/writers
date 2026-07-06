@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-paper text-ink font-serif;
+  }
+
+  body {
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* 원고지 느낌의 은은한 스크롤바 */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: theme('colors.paper.line');
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@layer components {
+  /* 마크다운 미리보기용 최소 스타일 (굵게/기울임/밑줄/취소선/인용구) */
+  .prose-paper p {
+    @apply mb-4;
+  }
+  .prose-paper strong {
+    @apply font-semibold text-ink;
+  }
+  .prose-paper em {
+    @apply italic;
+  }
+  .prose-paper u {
+    @apply underline decoration-accent-indigo/60 underline-offset-4;
+  }
+  .prose-paper del {
+    @apply text-ink-soft line-through;
+  }
+  .prose-paper blockquote {
+    @apply mb-4 border-l-2 border-accent-indigo/50 pl-4 italic text-ink-soft;
+  }
+}

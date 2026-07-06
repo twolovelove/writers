@@ -354,4 +354,4 @@ export function getPromptForDate(date: Date, category: Category): WritingPrompt 
   return pool[index]
 }
 
-export const CATEGORIES: Category[] = ['에세이', '상상/소설', '자기계발', '비평', '자유주제']
+export const CATEGORIES: Category[] = ['자유주제', '에세이', '상상/소설', '자기계발', '비평']

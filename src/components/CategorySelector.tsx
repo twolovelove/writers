@@ -6,7 +6,7 @@ interface Props {
   onSelect: (category: Category) => void
 }
 
-// 상단의 카테고리 선택 UI: 에세이 / 상상·소설 / 자기계발 / 비평
+// 상단의 카테고리 선택 UI: 자유주제 / 에세이 / 상상·소설 / 자기계발 / 비평
 export function CategorySelector({ selected, onSelect }: Props) {
   return (
     <div className="flex flex-wrap gap-2">

@@ -35,7 +35,7 @@ export function Dashboard({
   onViewEntry,
 }: Props) {
   const [category, setCategory] = useState<Category>(
-    () => (localStorage.getItem(LAST_CATEGORY_KEY) as Category | null) ?? '에세이',
+    () => (localStorage.getItem(LAST_CATEGORY_KEY) as Category | null) ?? '자유주제',
   )
   const { isLockedToday, completedEntry, remainingMs } = useDailyLock()
   const today = new Date()

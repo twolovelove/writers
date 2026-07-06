@@ -21,7 +21,8 @@ export function Login({ onOpenPrivacy, onOpenTerms }: Props) {
 
       <h1 className="text-2xl text-ink">매일 1,000자 글쓰기</h1>
       <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-        로그인하면 어떤 기기에서든 같은 계정으로 글쓰기 기록을 이어갈 수 있어요.
+        퇴근 후 하루를 정리하듯, 짧은 글감 하나로 매일 1,000자씩 적어보세요. 로그인하면 어떤
+        기기에서든 이어서 쓸 수 있어요.
       </p>
 
       <button

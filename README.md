@@ -61,6 +61,11 @@ select id from auth.users where email = '관리자로_지정할_이메일'
 on conflict do nothing;
 ```
 
+글 데이터(`entries`)는 LocalStorage 없이 Supabase에만 저장됩니다. 회원 탈퇴 시 계정 자체(`auth.users`)를
+지우려면 `supabase/functions/delete-account` Edge Function도 배포해야 합니다 — 정확한 배포 명령은
+`OPERATIONS.md`의 "배포 시점 직전 (P0.5)" 체크리스트를 참고하세요. 배포 전까지는 탈퇴 시 글 데이터만
+삭제되고 로그인 계정 자체는 남아있습니다.
+
 ## 스크립트
 
 | 명령어 | 설명 |

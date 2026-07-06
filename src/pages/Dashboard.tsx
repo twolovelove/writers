@@ -8,7 +8,7 @@ import { getPromptForDate } from '../data/prompts'
 import { useDailyLock } from '../hooks/useDailyLock'
 import { useIsAdmin } from '../hooks/useIsAdmin'
 import { formatKoreanDate } from '../utils/date'
-import { getAllDrafts, getStreak } from '../utils/archive'
+import { getStreak } from '../utils/archive'
 import { trackEvent } from '../lib/analytics'
 import type { Session } from '@supabase/supabase-js'
 import type { Category, DraftEntry, WritingPrompt } from '../types'
@@ -17,6 +17,7 @@ const LAST_CATEGORY_KEY = 'writer:lastCategory'
 
 interface Props {
   session: Session
+  entries: DraftEntry[]
   onStartWriting: (category: Category, prompt: WritingPrompt) => void
   onOpenArchive: () => void
   onOpenSettings: () => void
@@ -28,6 +29,7 @@ interface Props {
 // 오늘 이미 목표를 채웠다면 새 글쓰기 대신 완료 카드와 다음 글감까지 남은 시간을 보여준다.
 export function Dashboard({
   session,
+  entries,
   onStartWriting,
   onOpenArchive,
   onOpenSettings,
@@ -37,11 +39,11 @@ export function Dashboard({
   const [category, setCategory] = useState<Category>(
     () => (localStorage.getItem(LAST_CATEGORY_KEY) as Category | null) ?? '자유주제',
   )
-  const { isLockedToday, completedEntry, remainingMs } = useDailyLock()
+  const { isLockedToday, completedEntry, remainingMs } = useDailyLock(entries)
   const today = new Date()
   const prompt = getPromptForDate(today, category)
   const isAdmin = useIsAdmin(session.user.id)
-  const streak = getStreak(getAllDrafts())
+  const streak = getStreak(entries)
 
   const handleSelectCategory = (next: Category) => {
     setCategory(next)

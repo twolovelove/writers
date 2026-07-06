@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { ArrowLeft, BookMarked, CheckCircle2, NotebookText, X } from 'lucide-react'
-import { getAllDrafts, displayTitle } from '../utils/archive'
+import { displayTitle } from '../utils/archive'
 import { stripFormatting } from '../utils/textFormat'
 import { formatShortKoreanDate } from '../utils/date'
 import { ArchiveCalendar } from '../components/ArchiveCalendar'
 import type { DraftEntry } from '../types'
 
 interface Props {
+  entries: DraftEntry[]
   onBack: () => void
   onOpenEntry: (entry: DraftEntry) => void
   onOpenCompilation: () => void
@@ -18,8 +19,7 @@ function snippetOf(content: string): string {
 }
 
 // Page: 지금까지 쓴 모든 글을 달력과 목록으로 모아보는 아카이브
-export function Archive({ onBack, onOpenEntry, onOpenCompilation }: Props) {
-  const drafts = getAllDrafts()
+export function Archive({ entries: drafts, onBack, onOpenEntry, onOpenCompilation }: Props) {
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const visibleDrafts = selectedDate ? drafts.filter((d) => d.date === selectedDate) : drafts
 

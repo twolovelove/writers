@@ -9,18 +9,20 @@ import { applyFormat, renderPreview, type FormatType } from '../utils/textFormat
 import { generateFeedback } from '../utils/feedback'
 import { toISODate } from '../utils/date'
 import { trackEvent } from '../lib/analytics'
-import type { Category, WritingPrompt } from '../types'
+import type { Category, DraftEntry, WritingPrompt } from '../types'
 
 interface Props {
   session: Session
   category: Category
   prompt: WritingPrompt
+  initialEntry: DraftEntry | null
+  onSaved: (entry: DraftEntry) => void
   onBack: () => void
 }
 
 // Page 2: 종이 원고지 느낌의 텍스트 에디터. 벨로그 스타일 서식 도구, 실시간 글자 수,
 // 자동 저장, 목표 달성 피드백을 모두 이 화면에서 처리한다.
-export function Editor({ session, category, prompt, onBack }: Props) {
+export function Editor({ session, category, prompt, initialEntry, onSaved, onBack }: Props) {
   const date = toISODate(new Date())
   const {
     title,
@@ -34,7 +36,7 @@ export function Editor({ session, category, prompt, onBack }: Props) {
     saveNow,
     feedback,
     saveFeedback,
-  } = useDraft(date, category, prompt.id, session.user.id)
+  } = useDraft(date, category, prompt.id, session.user.id, initialEntry, onSaved)
   const [isPreview, setIsPreview] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -152,6 +154,12 @@ export function Editor({ session, category, prompt, onBack }: Props) {
         </div>
 
         <ProgressBar progress={progress} isGoalMet={isGoalMet} />
+
+        {isGoalMet && feedback === null && (
+          <p className="text-center text-xs text-ink-soft/70">
+            완료하면 오늘 글은 그대로 간직돼요. 다시 고쳐 쓸 수는 없으니, 한 번 더 읽어보고 눌러주세요.
+          </p>
+        )}
 
         <button
           type="button"

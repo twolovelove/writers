@@ -71,3 +71,32 @@ create policy "Users can manage their own entries"
   to authenticated
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
+
+-- updated_at은 클라이언트 기기 시계가 아니라 항상 서버 시각을 기준으로 채운다.
+-- (기기 시계가 어긋나 있으면 오래된 기기의 저장이 최신 저장을 덮어쓸 수 있었던 문제를 방지)
+create or replace function set_entries_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+drop trigger if exists entries_set_updated_at on entries;
+create trigger entries_set_updated_at
+  before insert or update on entries
+  for each row execute function set_entries_updated_at();
+
+-- 회원 탈퇴 시 auth.users에서 계정이 완전히 삭제되면(supabase/functions/delete-account 참고)
+-- 이 계정을 참조하던 entries/reviews/admins 행도 함께 정리되도록 cascade를 건다.
+alter table entries drop constraint if exists entries_user_id_fkey;
+alter table entries add constraint entries_user_id_fkey
+  foreign key (user_id) references auth.users(id) on delete cascade;
+
+alter table reviews drop constraint if exists reviews_user_id_fkey;
+alter table reviews add constraint reviews_user_id_fkey
+  foreign key (user_id) references auth.users(id) on delete cascade;
+
+alter table admins drop constraint if exists admins_user_id_fkey;
+alter table admins add constraint admins_user_id_fkey
+  foreign key (user_id) references auth.users(id) on delete cascade;

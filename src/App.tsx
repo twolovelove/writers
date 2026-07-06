@@ -9,10 +9,10 @@ import { PrivacyPolicy } from './pages/PrivacyPolicy'
 import { TermsOfService } from './pages/TermsOfService'
 import { Settings } from './pages/Settings'
 import { AdminReviews } from './pages/AdminReviews'
-import { getAllDrafts } from './utils/archive'
 import { useSession } from './hooks/useSession'
-import { useEntrySync } from './hooks/useEntrySync'
+import { useEntries } from './hooks/useEntries'
 import { supabase } from './lib/supabaseClient'
+import { toISODate } from './utils/date'
 import type { Category, DraftEntry, WritingPrompt } from './types'
 
 type View =
@@ -29,7 +29,8 @@ function App() {
   const [showPrivacy, setShowPrivacy] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
   const { session, loading } = useSession()
-  const { syncing } = useEntrySync(session?.user.id ?? null)
+  const userId = session?.user.id ?? null
+  const { entries, loading: entriesLoading, upsertEntry } = useEntries(userId)
 
   if (loading) return null
   if (showPrivacy) {
@@ -39,14 +40,19 @@ function App() {
   if (!session) {
     return <Login onOpenPrivacy={() => setShowPrivacy(true)} onOpenTerms={() => setShowTerms(true)} />
   }
-  if (syncing) return null
+  if (entriesLoading) return null
 
   if (view.name === 'editor') {
+    const today = toISODate(new Date())
+    const initialEntry =
+      entries.find((entry) => entry.date === today && entry.category === view.category) ?? null
     return (
       <Editor
         session={session}
         category={view.category}
         prompt={view.prompt}
+        initialEntry={initialEntry}
+        onSaved={upsertEntry}
         onBack={() => setView({ name: 'dashboard' })}
       />
     )
@@ -55,6 +61,7 @@ function App() {
   if (view.name === 'archive') {
     return (
       <Archive
+        entries={entries}
         onBack={() => setView({ name: 'dashboard' })}
         onOpenEntry={(entry) => setView({ name: 'entry', entry, from: 'archive' })}
         onOpenCompilation={() => setView({ name: 'compilation', from: 'archive' })}
@@ -74,7 +81,7 @@ function App() {
   if (view.name === 'compilation') {
     return (
       <Compilation
-        entries={getAllDrafts()}
+        entries={entries}
         onBack={() => setView(view.from === 'settings' ? { name: 'settings' } : { name: 'archive' })}
       />
     )
@@ -99,6 +106,7 @@ function App() {
   return (
     <Dashboard
       session={session}
+      entries={entries}
       onStartWriting={(category, prompt) => setView({ name: 'editor', category, prompt })}
       onOpenArchive={() => setView({ name: 'archive' })}
       onOpenSettings={() => setView({ name: 'settings' })}

@@ -1,6 +1,13 @@
+import { PROMPTS } from '../data/prompts'
 import type { DraftEntry } from '../types'
 
 const PREFIX = 'writer:draft:'
+
+// 사용자가 직접 붙인 제목이 있으면 그것을, 없으면 글감 제목을 대신 보여준다
+export function displayTitle(entry: DraftEntry): string {
+  if (entry.title.trim()) return entry.title.trim()
+  return PROMPTS.find((p) => p.id === entry.promptId)?.title ?? '글감 정보 없음'
+}
 
 // LocalStorage에 흩어져 있는 모든 초고를 모아 최신 날짜순으로 정렬해 반환
 export function getAllDrafts(): DraftEntry[] {

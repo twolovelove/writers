@@ -17,13 +17,20 @@ function loadDraft(date: string, category: Category): DraftEntry | null {
   }
 }
 
-function persistDraft(date: string, category: Category, promptId: string, text: string): string {
-  const charCount = text.length
+function persistDraft(
+  date: string,
+  category: Category,
+  promptId: string,
+  title: string,
+  content: string,
+): string {
+  const charCount = content.length
   const entry: DraftEntry = {
     date,
     category,
     promptId,
-    content: text,
+    title,
+    content,
     charCount,
     completed: charCount >= GOAL_CHARS,
     updatedAt: new Date().toISOString(),
@@ -32,19 +39,21 @@ function persistDraft(date: string, category: Category, promptId: string, text: 
   return entry.updatedAt
 }
 
-// 특정 날짜 + 카테고리의 초고를 불러오고, 타이핑이 멈춘 뒤 1초 후 자동으로
-// LocalStorage에 저장하는 훅. 글자 수 계산과 목표 달성 여부도 함께 관리한다.
+// 특정 날짜 + 카테고리의 초고(제목 + 본문)를 불러오고, 타이핑이 멈춘 뒤 1초 후
+// 자동으로 LocalStorage에 저장하는 훅. 글자 수 계산과 목표 달성 여부도 함께 관리한다.
 export function useDraft(date: string, category: Category, promptId: string) {
+  const [title, setTitle] = useState(() => loadDraft(date, category)?.title ?? '')
   const [content, setContent] = useState(() => loadDraft(date, category)?.content ?? '')
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(
     () => loadDraft(date, category)?.updatedAt ?? null,
   )
-  const debouncedContent = useDebounce(content, 1000)
+  const debounced = useDebounce({ title, content }, 1000)
   const isFirstRun = useRef(true)
 
   // 날짜/카테고리가 바뀌면 해당 초고를 다시 불러온다
   useEffect(() => {
     const saved = loadDraft(date, category)
+    setTitle(saved?.title ?? '')
     setContent(saved?.content ?? '')
     setLastSavedAt(saved?.updatedAt ?? null)
     isFirstRun.current = true
@@ -56,21 +65,23 @@ export function useDraft(date: string, category: Category, promptId: string) {
       isFirstRun.current = false
       return
     }
-    setLastSavedAt(persistDraft(date, category, promptId, debouncedContent))
+    setLastSavedAt(persistDraft(date, category, promptId, debounced.title, debounced.content))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedContent])
+  }, [debounced])
 
   // 디바운스를 기다리지 않고 즉시 저장 (예: '오늘의 글쓰기 완료' 버튼 클릭 시)
   const saveNow = useCallback(() => {
-    setLastSavedAt(persistDraft(date, category, promptId, content))
+    setLastSavedAt(persistDraft(date, category, promptId, title, content))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, category, promptId, content])
+  }, [date, category, promptId, title, content])
 
   const charCount = content.length
   const progress = Math.min(100, Math.round((charCount / GOAL_CHARS) * 100))
   const isGoalMet = charCount >= GOAL_CHARS
 
   return {
+    title,
+    setTitle,
     content,
     setContent,
     charCount,

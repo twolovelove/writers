@@ -1,7 +1,7 @@
 import { ArrowLeft, Printer } from 'lucide-react'
 import { renderPreview } from '../utils/textFormat'
 import { formatShortKoreanDate } from '../utils/date'
-import { PROMPTS } from '../data/prompts'
+import { displayTitle } from '../utils/archive'
 import type { DraftEntry } from '../types'
 
 interface Props {
@@ -54,7 +54,6 @@ export function Compilation({ entries, onBack }: Props) {
 
       {/* 본문 */}
       {sorted.map((entry, i) => {
-        const promptTitle = PROMPTS.find((p) => p.id === entry.promptId)?.title ?? '글감 정보 없음'
         return (
           <section
             key={`${entry.date}-${entry.category}`}
@@ -66,7 +65,7 @@ export function Compilation({ entries, onBack }: Props) {
             <p className="text-xs tracking-[0.2em] text-accent-indigo">
               {formatShortKoreanDate(entry.date)} · {entry.category}
             </p>
-            <h2 className="mt-2 text-xl text-ink">{promptTitle}</h2>
+            <h2 className="mt-2 text-xl text-ink">{displayTitle(entry)}</h2>
             <div
               className="prose-paper mt-5 text-base leading-[2.1] text-ink"
               dangerouslySetInnerHTML={{ __html: renderPreview(entry.content) }}

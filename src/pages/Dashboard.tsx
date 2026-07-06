@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BookOpen } from 'lucide-react'
+import { BookOpen, LogOut } from 'lucide-react'
 import { CategorySelector } from '../components/CategorySelector'
 import { PromptCard } from '../components/PromptCard'
 import { CompletedTodayCard } from '../components/CompletedTodayCard'
@@ -14,11 +14,12 @@ interface Props {
   onStartWriting: (category: Category, prompt: WritingPrompt) => void
   onOpenArchive: () => void
   onViewEntry: (entry: DraftEntry) => void
+  onLogout: () => void
 }
 
 // Page 1: 오늘 날짜와 카테고리를 고르면 그에 맞는 '오늘의 글감'을 보여주는 대시보드.
 // 오늘 이미 목표를 채웠다면 새 글쓰기 대신 완료 카드와 다음 글감까지 남은 시간을 보여준다.
-export function Dashboard({ onStartWriting, onOpenArchive, onViewEntry }: Props) {
+export function Dashboard({ onStartWriting, onOpenArchive, onViewEntry, onLogout }: Props) {
   const [category, setCategory] = useState<Category>(
     () => (localStorage.getItem(LAST_CATEGORY_KEY) as Category | null) ?? '에세이',
   )
@@ -42,14 +43,24 @@ export function Dashboard({ onStartWriting, onOpenArchive, onViewEntry }: Props)
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onOpenArchive}
-          className="flex shrink-0 items-center gap-1.5 rounded-full px-3 py-2 text-xs text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
-        >
-          <BookOpen size={15} strokeWidth={1.75} />
-          내가 쓴 글
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            type="button"
+            onClick={onOpenArchive}
+            className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+          >
+            <BookOpen size={15} strokeWidth={1.75} />
+            내가 쓴 글
+          </button>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+          >
+            <LogOut size={15} strokeWidth={1.75} />
+            로그아웃
+          </button>
+        </div>
       </header>
 
       {isLockedToday && completedEntry ? (

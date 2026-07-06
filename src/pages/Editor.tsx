@@ -19,7 +19,7 @@ interface Props {
 // 자동 저장, 목표 달성 피드백을 모두 이 화면에서 처리한다.
 export function Editor({ category, prompt, onBack }: Props) {
   const date = toISODate(new Date())
-  const { content, setContent, charCount, goal, progress, isGoalMet, saveNow } = useDraft(
+  const { title, setTitle, content, setContent, charCount, goal, progress, isGoalMet, saveNow } = useDraft(
     date,
     category,
     prompt.id,
@@ -88,7 +88,19 @@ export function Editor({ category, prompt, onBack }: Props) {
           <EditorToolbar onFormat={handleFormat} isPreview={isPreview} onTogglePreview={() => setIsPreview((v) => !v)} />
         </div>
 
+        {!isPreview && (
+          <div className="px-6 pt-5 sm:px-8">
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="제목을 입력하세요 (선택)"
+              className="w-full bg-transparent text-xl text-ink placeholder:text-ink-soft/50 focus:outline-none"
+            />
+          </div>
+        )}
+
         <div className="min-h-[420px] px-6 py-6 sm:px-8">
+          {isPreview && title && <h2 className="mb-4 text-xl text-ink">{title}</h2>}
           {isPreview ? (
             <div
               className="prose-paper min-h-[420px] text-lg leading-[2.1] text-ink"

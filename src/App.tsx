@@ -4,7 +4,10 @@ import { Editor } from './pages/Editor'
 import { Archive } from './pages/Archive'
 import { EntryView } from './pages/EntryView'
 import { Compilation } from './pages/Compilation'
+import { Login } from './pages/Login'
 import { getAllDrafts } from './utils/archive'
+import { useSession } from './hooks/useSession'
+import { supabase } from './lib/supabaseClient'
 import type { Category, DraftEntry, WritingPrompt } from './types'
 
 type View =
@@ -16,6 +19,10 @@ type View =
 
 function App() {
   const [view, setView] = useState<View>({ name: 'dashboard' })
+  const { session, loading } = useSession()
+
+  if (loading) return null
+  if (!session) return <Login />
 
   if (view.name === 'editor') {
     return (
@@ -55,6 +62,7 @@ function App() {
       onStartWriting={(category, prompt) => setView({ name: 'editor', category, prompt })}
       onOpenArchive={() => setView({ name: 'archive' })}
       onViewEntry={(entry) => setView({ name: 'entry', entry, from: 'dashboard' })}
+      onLogout={() => supabase.auth.signOut()}
     />
   )
 }

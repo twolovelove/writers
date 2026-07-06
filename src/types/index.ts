@@ -14,6 +14,7 @@ export interface DraftEntry {
   date: string // YYYY-MM-DD
   category: Category
   promptId: string
+  title: string // 사용자가 직접 붙인 제목 (비어 있으면 글감 제목으로 대체)
   content: string // 에디터 원문 (마크다운 서식 포함)
   charCount: number
   completed: boolean

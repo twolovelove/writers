@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { ArrowLeft, BookMarked, CheckCircle2, NotebookText, X } from 'lucide-react'
-import { getAllDrafts } from '../utils/archive'
+import { getAllDrafts, displayTitle } from '../utils/archive'
 import { stripFormatting } from '../utils/textFormat'
 import { formatShortKoreanDate } from '../utils/date'
-import { PROMPTS } from '../data/prompts'
 import { ArchiveCalendar } from '../components/ArchiveCalendar'
 import type { DraftEntry } from '../types'
 
@@ -74,7 +73,6 @@ export function Archive({ onBack, onOpenEntry, onOpenCompilation }: Props) {
       ) : (
         <ul className="flex flex-col gap-3">
           {visibleDrafts.map((entry) => {
-            const promptTitle = PROMPTS.find((p) => p.id === entry.promptId)?.title ?? '글감 정보 없음'
             return (
               <li key={`${entry.date}-${entry.category}`}>
                 <button
@@ -93,7 +91,7 @@ export function Archive({ onBack, onOpenEntry, onOpenCompilation }: Props) {
                       </span>
                     )}
                   </div>
-                  <p className="mt-2 text-base text-ink">{promptTitle}</p>
+                  <p className="mt-2 text-base text-ink">{displayTitle(entry)}</p>
                   <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{snippetOf(entry.content)}</p>
                   <p className="mt-2 text-xs text-ink-soft/70">{entry.charCount.toLocaleString()}자</p>
                 </button>

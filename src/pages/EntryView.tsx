@@ -1,7 +1,7 @@
 import { ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { renderPreview } from '../utils/textFormat'
 import { formatShortKoreanDate } from '../utils/date'
-import { PROMPTS } from '../data/prompts'
+import { displayTitle } from '../utils/archive'
 import type { DraftEntry } from '../types'
 
 interface Props {
@@ -12,7 +12,6 @@ interface Props {
 // Page: 지난 글 또는 오늘 완료한 글을 읽기 전용으로 보여주는 화면.
 // 하루의 글쓰기는 그 날로 마무리된다는 의미에서 수정은 지원하지 않는다.
 export function EntryView({ entry, onBack }: Props) {
-  const promptTitle = PROMPTS.find((p) => p.id === entry.promptId)?.title ?? '글감 정보 없음'
 
   return (
     <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-12 sm:py-16">
@@ -29,7 +28,7 @@ export function EntryView({ entry, onBack }: Props) {
         <p className="text-xs tracking-[0.2em] text-accent-indigo">
           {formatShortKoreanDate(entry.date)} · {entry.category} · 오늘의 글감
         </p>
-        <p className="mt-1 text-base text-ink">{promptTitle}</p>
+        <p className="mt-1 text-base text-ink">{displayTitle(entry)}</p>
       </div>
 
       <div className="flex-1 rounded-2xl border border-paper-line bg-paper p-6 shadow-paper sm:p-8">

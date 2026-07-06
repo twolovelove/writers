@@ -5,7 +5,7 @@ import { ProgressBar } from '../components/ProgressBar'
 import { FeedbackPanel } from '../components/FeedbackPanel'
 import { useDraft } from '../hooks/useDraft'
 import { applyFormat, renderPreview, type FormatType } from '../utils/textFormat'
-import { generateFeedback, type FeedbackItem } from '../utils/feedback'
+import { generateFeedback } from '../utils/feedback'
 import { toISODate } from '../utils/date'
 import type { Category, WritingPrompt } from '../types'
 
@@ -19,13 +19,20 @@ interface Props {
 // 자동 저장, 목표 달성 피드백을 모두 이 화면에서 처리한다.
 export function Editor({ category, prompt, onBack }: Props) {
   const date = toISODate(new Date())
-  const { title, setTitle, content, setContent, charCount, goal, progress, isGoalMet, saveNow } = useDraft(
-    date,
-    category,
-    prompt.id,
-  )
+  const {
+    title,
+    setTitle,
+    content,
+    setContent,
+    charCount,
+    goal,
+    progress,
+    isGoalMet,
+    saveNow,
+    feedback,
+    saveFeedback,
+  } = useDraft(date, category, prompt.id)
   const [isPreview, setIsPreview] = useState(false)
-  const [feedback, setFeedback] = useState<FeedbackItem[] | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleFormat = (type: FormatType) => {
@@ -64,7 +71,7 @@ export function Editor({ category, prompt, onBack }: Props) {
 
   const handleComplete = () => {
     saveNow()
-    setFeedback(generateFeedback(content))
+    saveFeedback(generateFeedback(content))
   }
 
   return (

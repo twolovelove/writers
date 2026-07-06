@@ -3,7 +3,7 @@ import type { FeedbackItem } from '../utils/feedback'
 
 interface Props {
   items: FeedbackItem[]
-  onBackToDashboard: () => void
+  onBackToDashboard?: () => void
 }
 
 // 완료 버튼을 누르면 나타나는 첨삭 노트. 종이 노트에 붙인 포스트잇처럼
@@ -29,13 +29,15 @@ export function FeedbackPanel({ items, onBackToDashboard }: Props) {
         ))}
       </ul>
 
-      <button
-        type="button"
-        onClick={onBackToDashboard}
-        className="mt-7 w-full rounded-full bg-ink py-3 text-sm tracking-wide text-paper transition-colors duration-200 hover:bg-accent-indigo"
-      >
-        내일 또 쓰러 오기
-      </button>
+      {onBackToDashboard && (
+        <button
+          type="button"
+          onClick={onBackToDashboard}
+          className="mt-7 w-full rounded-full bg-ink py-3 text-sm tracking-wide text-paper transition-colors duration-200 hover:bg-accent-indigo"
+        >
+          내일 또 쓰러 오기
+        </button>
+      )}
     </div>
   )
 }

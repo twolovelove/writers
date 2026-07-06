@@ -2,6 +2,7 @@ import { ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { renderPreview } from '../utils/textFormat'
 import { formatShortKoreanDate } from '../utils/date'
 import { displayTitle } from '../utils/archive'
+import { FeedbackPanel } from '../components/FeedbackPanel'
 import type { DraftEntry } from '../types'
 
 interface Props {
@@ -47,6 +48,8 @@ export function EntryView({ entry, onBack }: Props) {
           </span>
         )}
       </div>
+
+      {entry.feedback && entry.feedback.length > 0 && <FeedbackPanel items={entry.feedback} />}
     </div>
   )
 }

@@ -9,6 +9,12 @@ export interface WritingPrompt {
   description: string
 }
 
+// 첨삭 노트 항목 하나 (칭찬 또는 제안)
+export interface FeedbackItem {
+  type: 'praise' | 'suggestion'
+  message: string
+}
+
 // LocalStorage에 저장되는 하루치 글쓰기 기록
 export interface DraftEntry {
   date: string // YYYY-MM-DD
@@ -19,4 +25,5 @@ export interface DraftEntry {
   charCount: number
   completed: boolean
   updatedAt: string // ISO timestamp
+  feedback?: FeedbackItem[] // 완료 시 생성된 첨삭 노트 (있으면 지난 글 보기에서도 다시 보여준다)
 }

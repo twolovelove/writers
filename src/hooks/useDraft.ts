@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDebounce } from './useDebounce'
-import type { Category, DraftEntry } from '../types'
+import type { Category, DraftEntry, FeedbackItem } from '../types'
 
 const GOAL_CHARS = 1000
 
@@ -23,6 +23,7 @@ function persistDraft(
   promptId: string,
   title: string,
   content: string,
+  feedback: FeedbackItem[] | null,
 ): string {
   const charCount = content.length
   const entry: DraftEntry = {
@@ -34,6 +35,7 @@ function persistDraft(
     charCount,
     completed: charCount >= GOAL_CHARS,
     updatedAt: new Date().toISOString(),
+    ...(feedback ? { feedback } : {}),
   }
   localStorage.setItem(storageKey(date, category), JSON.stringify(entry))
   return entry.updatedAt
@@ -44,6 +46,9 @@ function persistDraft(
 export function useDraft(date: string, category: Category, promptId: string) {
   const [title, setTitle] = useState(() => loadDraft(date, category)?.title ?? '')
   const [content, setContent] = useState(() => loadDraft(date, category)?.content ?? '')
+  const [feedback, setFeedback] = useState<FeedbackItem[] | null>(
+    () => loadDraft(date, category)?.feedback ?? null,
+  )
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(
     () => loadDraft(date, category)?.updatedAt ?? null,
   )
@@ -55,6 +60,7 @@ export function useDraft(date: string, category: Category, promptId: string) {
     const saved = loadDraft(date, category)
     setTitle(saved?.title ?? '')
     setContent(saved?.content ?? '')
+    setFeedback(saved?.feedback ?? null)
     setLastSavedAt(saved?.updatedAt ?? null)
     isFirstRun.current = true
   }, [date, category])
@@ -65,15 +71,24 @@ export function useDraft(date: string, category: Category, promptId: string) {
       isFirstRun.current = false
       return
     }
-    setLastSavedAt(persistDraft(date, category, promptId, debounced.title, debounced.content))
+    setLastSavedAt(persistDraft(date, category, promptId, debounced.title, debounced.content, feedback))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounced])
 
   // 디바운스를 기다리지 않고 즉시 저장 (예: '오늘의 글쓰기 완료' 버튼 클릭 시)
   const saveNow = useCallback(() => {
-    setLastSavedAt(persistDraft(date, category, promptId, title, content))
+    setLastSavedAt(persistDraft(date, category, promptId, title, content, feedback))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, category, promptId, title, content])
+  }, [date, category, promptId, title, content, feedback])
+
+  // 첨삭 노트를 생성한 뒤 초고와 함께 저장해, 지난 글 보기에서도 다시 볼 수 있게 한다
+  const saveFeedback = useCallback(
+    (items: FeedbackItem[]) => {
+      setFeedback(items)
+      setLastSavedAt(persistDraft(date, category, promptId, title, content, items))
+    },
+    [date, category, promptId, title, content],
+  )
 
   const charCount = content.length
   const progress = Math.min(100, Math.round((charCount / GOAL_CHARS) * 100))
@@ -90,5 +105,7 @@ export function useDraft(date: string, category: Category, promptId: string) {
     isGoalMet,
     lastSavedAt,
     saveNow,
+    feedback,
+    saveFeedback,
   }
 }

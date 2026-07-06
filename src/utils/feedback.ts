@@ -1,11 +1,10 @@
 import { stripFormatting } from './textFormat'
+import type { FeedbackItem } from '../types'
 
-export interface FeedbackItem {
-  type: 'praise' | 'suggestion'
-  message: string
-}
+export type { FeedbackItem }
 
 const CONNECTIVES = ['그리고', '그래서', '하지만', '그런데', '또한', '그러나']
+const FILLER_WORDS = ['정말', '진짜', '너무', '완전', '약간', '그냥']
 const CLOSING_CHARS = ['.', '!', '?', '"', "'", '」', '』', '~']
 
 function splitSentences(text: string): string[] {
@@ -15,8 +14,14 @@ function splitSentences(text: string): string[] {
     .filter(Boolean)
 }
 
-// 규칙 기반(mock) 첨삭: 평균 문장 길이 / 접속사 반복 / 문단 구성 / 마무리 문장 / 서식 활용,
-// 다섯 가지 관점에서 글을 훑어보고 칭찬(praise)과 제안(suggestion)을 함께 돌려준다.
+// 문장의 첫 어절만 뽑아낸다 (예: "나는 오늘 걸었다" → "나는")
+function firstWord(sentence: string): string {
+  return sentence.split(/\s+/)[0] ?? ''
+}
+
+// 규칙 기반(mock) 첨삭: 평균 문장 길이 / 접속사 반복 / 강조어 남용 / 문장 시작 반복 /
+// 문단 구성 / 마무리 문장 / 서식 활용을 훑어보고 칭찬(praise)과 제안(suggestion),
+// 마지막에 종합 총평까지 함께 돌려준다.
 export function generateFeedback(raw: string): FeedbackItem[] {
   const plain = stripFormatting(raw).trim()
   const charCount = raw.length
@@ -59,6 +64,46 @@ export function generateFeedback(raw: string): FeedbackItem[] {
     feedback.push({ type: 'praise', message: '접속사를 반복하지 않고 다양하게 사용했어요.' })
   }
 
+  let mostRepeatedFiller: { word: string; count: number } | null = null
+  for (const word of FILLER_WORDS) {
+    const count = plain.split(word).length - 1
+    if (count >= 4 && (!mostRepeatedFiller || count > mostRepeatedFiller.count)) {
+      mostRepeatedFiller = { word, count }
+    }
+  }
+  if (mostRepeatedFiller) {
+    feedback.push({
+      type: 'suggestion',
+      message: `'${mostRepeatedFiller.word}'를 ${mostRepeatedFiller.count}번 썼어요. 습관적인 강조어를 줄이면 문장이 더 담백해져요.`,
+    })
+  }
+
+  if (sentences.length >= 4) {
+    let streakWord = ''
+    let streakLen = 0
+    let maxStreak: { word: string; len: number } | null = null
+    for (const sentence of sentences) {
+      const word = firstWord(sentence)
+      if (word && word === streakWord) {
+        streakLen += 1
+      } else {
+        streakWord = word
+        streakLen = 1
+      }
+      if (streakLen >= 3 && (!maxStreak || streakLen > maxStreak.len)) {
+        maxStreak = { word: streakWord, len: streakLen }
+      }
+    }
+    if (maxStreak) {
+      feedback.push({
+        type: 'suggestion',
+        message: `문장을 연달아 '${maxStreak.word}'(으)로 시작했어요. 시작 표현을 바꿔보면 글에 리듬이 살아나요.`,
+      })
+    } else {
+      feedback.push({ type: 'praise', message: '문장을 시작하는 표현이 다양해서 글이 단조롭지 않아요.' })
+    }
+  }
+
   const paragraphs = raw
     .split(/\n{2,}/)
     .map((p) => p.trim())
@@ -91,6 +136,16 @@ export function generateFeedback(raw: string): FeedbackItem[] {
       message: '강조하고 싶은 문장에 굵게나 인용구 서식을 더해보면 글에 리듬이 생겨요.',
     })
   }
+
+  const praiseCount = feedback.filter((f) => f.type === 'praise').length
+  const suggestionCount = feedback.length - praiseCount
+  feedback.push({
+    type: suggestionCount === 0 ? 'praise' : 'suggestion',
+    message:
+      suggestionCount === 0
+        ? '오늘 글은 다듬을 곳 없이 고르게 잘 쓰였어요. 이 감각을 계속 이어가 보세요.'
+        : `오늘 글에서 잘한 점 ${praiseCount}가지, 다듬으면 좋을 점 ${suggestionCount}가지를 찾았어요.`,
+  })
 
   return feedback
 }

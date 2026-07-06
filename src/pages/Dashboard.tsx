@@ -7,6 +7,7 @@ import { ReviewWidget } from '../components/ReviewWidget'
 import { getPromptForDate } from '../data/prompts'
 import { useDailyLock } from '../hooks/useDailyLock'
 import { useIsAdmin } from '../hooks/useIsAdmin'
+import { useAdminAlwaysWrite } from '../hooks/useAdminAlwaysWrite'
 import { formatKoreanDate } from '../utils/date'
 import { getStreak } from '../utils/archive'
 import { trackEvent } from '../lib/analytics'
@@ -43,7 +44,9 @@ export function Dashboard({
   const today = new Date()
   const prompt = getPromptForDate(today, category)
   const isAdmin = useIsAdmin(session.user.id)
+  const [alwaysWrite] = useAdminAlwaysWrite()
   const streak = getStreak(entries)
+  const showLockedCard = isLockedToday && !(isAdmin && alwaysWrite)
 
   const handleSelectCategory = (next: Category) => {
     setCategory(next)
@@ -97,7 +100,7 @@ export function Dashboard({
         </div>
       </header>
 
-      {isLockedToday && completedEntry ? (
+      {showLockedCard && completedEntry ? (
         <CompletedTodayCard
           entry={completedEntry}
           remainingMs={remainingMs}

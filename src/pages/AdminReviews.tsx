@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { ArrowLeft, MessageCircle } from 'lucide-react'
+import { ArrowLeft, MessageCircle, PenLine } from 'lucide-react'
 import { supabase } from '../lib/supabaseClient'
+import { useAdminAlwaysWrite } from '../hooks/useAdminAlwaysWrite'
 
 interface Props {
   onBack: () => void
@@ -20,6 +21,7 @@ export function AdminReviews({ onBack }: Props) {
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [alwaysWrite, setAlwaysWrite] = useAdminAlwaysWrite()
 
   useEffect(() => {
     async function load() {
@@ -52,6 +54,36 @@ export function AdminReviews({ onBack }: Props) {
 
       <h1 className="mb-1 text-2xl text-ink sm:text-3xl">사용자 리뷰</h1>
       <p className="mb-8 text-sm text-ink-soft">관리자 계정에만 보이는 페이지예요.</p>
+
+      <section className="mb-8 rounded-2xl border border-paper-line bg-paper-cream/50 p-5">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <PenLine size={16} strokeWidth={1.75} className="shrink-0 text-accent-indigo" />
+            <div>
+              <p className="text-sm text-ink">언제든 글쓰기</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-ink-soft">
+                켜두면 오늘 글을 이미 완료했어도 하루 1회 잠금 없이 계속 쓸 수 있어요(이 관리자
+                계정, 이 기기에서만 적용).
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={alwaysWrite}
+            onClick={() => setAlwaysWrite(!alwaysWrite)}
+            className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-200 ${
+              alwaysWrite ? 'bg-accent-indigo' : 'bg-paper-line'
+            }`}
+          >
+            <span
+              className={`absolute top-0.5 h-5 w-5 rounded-full bg-paper shadow-paper transition-transform duration-200 ${
+                alwaysWrite ? 'translate-x-[22px]' : 'translate-x-0.5'
+              }`}
+            />
+          </button>
+        </div>
+      </section>
 
       {loading ? (
         <p className="text-sm text-ink-soft">불러오는 중...</p>

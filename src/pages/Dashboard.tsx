@@ -9,6 +9,7 @@ import { useDailyLock } from '../hooks/useDailyLock'
 import { useIsAdmin } from '../hooks/useIsAdmin'
 import { formatKoreanDate } from '../utils/date'
 import { getAllDrafts, getStreak } from '../utils/archive'
+import { trackEvent } from '../lib/analytics'
 import type { Session } from '@supabase/supabase-js'
 import type { Category, DraftEntry, WritingPrompt } from '../types'
 
@@ -107,7 +108,14 @@ export function Dashboard({
           </section>
 
           <section>
-            <PromptCard key={prompt.id} prompt={prompt} onStart={() => onStartWriting(category, prompt)} />
+            <PromptCard
+              key={prompt.id}
+              prompt={prompt}
+              onStart={() => {
+                trackEvent('writing_started', { category, prompt_id: prompt.id })
+                onStartWriting(category, prompt)
+              }}
+            />
           </section>
         </>
       )}

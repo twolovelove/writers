@@ -8,6 +8,7 @@ import { useDraft } from '../hooks/useDraft'
 import { applyFormat, renderPreview, type FormatType } from '../utils/textFormat'
 import { generateFeedback } from '../utils/feedback'
 import { toISODate } from '../utils/date'
+import { trackEvent } from '../lib/analytics'
 import type { Category, WritingPrompt } from '../types'
 
 interface Props {
@@ -74,13 +75,21 @@ export function Editor({ session, category, prompt, onBack }: Props) {
   const handleComplete = () => {
     saveNow()
     saveFeedback(generateFeedback(content))
+    trackEvent('writing_completed', { category, char_count: charCount })
+  }
+
+  const handleBack = () => {
+    if (feedback === null) {
+      trackEvent('writing_exited_incomplete', { category, char_count: charCount })
+    }
+    onBack()
   }
 
   return (
     <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-12 sm:py-16">
       <button
         type="button"
-        onClick={onBack}
+        onClick={handleBack}
         className="mb-8 flex w-fit items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-ink"
       >
         <ArrowLeft size={16} strokeWidth={1.75} />
@@ -161,7 +170,7 @@ export function Editor({ session, category, prompt, onBack }: Props) {
           {feedback !== null ? '오늘의 글쓰기를 완료했습니다' : '오늘의 글쓰기 완료'}
         </button>
 
-        {feedback && <FeedbackPanel items={feedback} onBackToDashboard={onBack} />}
+        {feedback && <FeedbackPanel items={feedback} onBackToDashboard={handleBack} />}
       </div>
     </div>
   )

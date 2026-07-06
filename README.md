@@ -43,6 +43,10 @@ VITE_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-public-key
 ```
 
+`VITE_GA_MEASUREMENT_ID`(GA4 측정 ID, `G-`로 시작)는 선택 사항입니다. 설정하면 페이지뷰와 함께
+글쓰기 시작(`writing_started`)·완료(`writing_completed`)·미완료 이탈(`writing_exited_incomplete`)
+이벤트가 GA4로 전송됩니다. 비워두면 분석 코드(`src/lib/analytics.ts`)가 아무 것도 하지 않습니다.
+
 ### Supabase 설정
 
 `supabase/schema.sql`을 Supabase SQL 편집기에서 실행해야 글 데이터 백업(`entries`)과 리뷰 위젯·관리자 페이지(`reviews`, `admins`)가 동작합니다. 관리자 권한은 `admins` 테이블에 등록된 계정인지 여부로만 판단하므로(프론트엔드·RLS 공통 기준), 관리자를 추가하려면 SQL 편집기에서 다음을 실행하세요.
@@ -61,7 +65,8 @@ on conflict do nothing;
 | `npm run build` | 타입 체크 후 프로덕션 빌드 |
 | `npm run preview` | 빌드 결과 미리보기 |
 | `npm run lint` | Oxlint 실행 |
+| `npm run test` | Vitest로 유닛 테스트 실행 |
 
 ## CI
 
-`main` 브랜치에 push하거나 그쪽으로 PR을 열면 [GitHub Actions](.github/workflows/ci.yml)가 lint와 타입 체크·빌드를 자동으로 실행합니다. 아직 별도 배포(호스팅)는 연결돼 있지 않습니다.
+`main` 브랜치에 push하거나 그쪽으로 PR을 열면 [GitHub Actions](.github/workflows/ci.yml)가 lint, 테스트, 타입 체크·빌드를 자동으로 실행합니다. 아직 별도 배포(호스팅)는 연결돼 있지 않습니다.

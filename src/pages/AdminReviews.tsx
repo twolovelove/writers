@@ -8,6 +8,7 @@ interface Props {
 
 interface Review {
   id: string
+  user_id: string
   email: string
   message: string
   created_at: string
@@ -25,7 +26,7 @@ export function AdminReviews({ onBack }: Props) {
       try {
         const { data, error } = await supabase
           .from('reviews')
-          .select('id, email, message, created_at')
+          .select('id, user_id, email, message, created_at')
           .order('created_at', { ascending: false })
         if (error) throw error
         setReviews(data ?? [])
@@ -71,6 +72,7 @@ export function AdminReviews({ onBack }: Props) {
                 <span>{r.email}</span>
                 <span>{new Date(r.created_at).toLocaleString('ko-KR')}</span>
               </div>
+              <p className="mt-0.5 text-[11px] text-ink-soft/50">유저 ID: {r.user_id}</p>
               <p className="mt-2 text-sm leading-relaxed text-ink">{r.message}</p>
             </li>
           ))}

@@ -6,7 +6,7 @@
 
 @layer base {
   html {
-    @apply bg-paper text-ink font-serif;
+    @apply bg-paper text-ink font-serif break-keep;
   }
 
   body {

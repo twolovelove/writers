@@ -12,7 +12,7 @@
 - **아카이브**: 글을 쓴 날짜를 달력으로 한눈에 확인하고, 지난 글을 읽기 전용으로 다시 볼 수 있음
 - **모음집**: 지금까지 쓴 글을 책처럼 엮어 월별로 보거나 목차와 함께 인쇄·PDF로 저장
 - **로그인**: Supabase 기반 Google 로그인, 글 데이터를 계정에 백업해 기기 간 동기화
-- **설정**: 개인정보 안내, 기기 데이터 삭제, 회원 탈퇴(로그아웃 + 데이터 삭제)
+- **설정**: 개인정보 안내, 회원 탈퇴(로그인 계정과 저장된 글을 모두 삭제)
 - **리뷰 위젯 & 관리자 페이지**: 사용자 피드백을 남기면 관리자 계정만 볼 수 있는 페이지에서 확인
 
 ## 기술 스택
@@ -23,9 +23,8 @@
 - Supabase (Auth, 글 데이터, 리뷰 데이터)
 - lucide-react (아이콘)
 
-글쓰기 초고는 이 기기의 LocalStorage에 즉시 저장되고, 로그인 계정에 연결된 Supabase에도 백업됩니다.
-로그인할 때마다 이 기기와 서버의 글을 비교해 더 최신 쪽으로 맞추기 때문에, 다른 기기에서 로그인해도
-지금까지 쓴 글을 이어서 볼 수 있습니다.
+글쓰기 초고는 LocalStorage 없이 로그인 계정에 연결된 Supabase에만 저장됩니다. 그래서 어떤 기기에서
+로그인하든 지금까지 쓴 글을 그대로 이어서 볼 수 있고, 계정마다 자기 글만 보게 됩니다.
 
 ## 시작하기
 
@@ -79,3 +78,14 @@ on conflict do nothing;
 ## CI
 
 `main` 브랜치에 push하거나 그쪽으로 PR을 열면 [GitHub Actions](.github/workflows/ci.yml)가 lint, 테스트, 타입 체크·빌드를 자동으로 실행합니다. 아직 별도 배포(호스팅)는 연결돼 있지 않습니다.
+
+## 운영 현황
+
+- **테스트**: Vitest — 첨삭 규칙(`feedback.test.ts`), 아카이브/스트릭 로직(`archive.test.ts`) 유닛 테스트. CI에서 매 push·PR마다 실행.
+- **에러 모니터링**: Sentry(`@sentry/react`) — `VITE_SENTRY_DSN` 설정 시에만 초기화. 렌더링 에러(`ErrorBoundary`)와 `pushEntry` 저장 실패를 잡음. DSN 미설정 시 콘솔 경고만 남기고 동작에는 영향 없음.
+- **분석**: GA4 — `VITE_GA_MEASUREMENT_ID` 설정 시에만 활성화. 글쓰기 시작/완료/미완료 이탈 이벤트 계측.
+- **관리자 권한**: `admins` 테이블에 등록된 계정인지 여부로만 판단(프론트엔드·RLS 공통 기준, 이메일 하드코딩 없음).
+- **데이터 격리**: `entries`/`reviews`/`admins` 테이블 모두 RLS 적용 — 본인 데이터만 접근 가능(관리자도 `entries`는 열람 불가).
+- **회원 탈퇴**: `supabase/functions/delete-account` Edge Function이 `auth.users` 계정 자체를 삭제하고, `entries`/`reviews`/`admins`는 FK cascade로 함께 정리됨(Edge Function 배포 전까지는 글 데이터만 삭제).
+
+운영·유지보수 관점의 우선순위와 아직 열려있는 작업은 `OPERATIONS.md`를 참고하세요.

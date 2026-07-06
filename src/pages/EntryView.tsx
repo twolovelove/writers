@@ -44,7 +44,7 @@ export function EntryView({ entry, onBack }: Props) {
         {entry.completed && (
           <span className="flex items-center gap-1.5 text-accent-green">
             <CheckCircle2 size={15} strokeWidth={1.75} />
-            그날의 글쓰기 완료
+            오늘의 글쓰기 완료
           </span>
         )}
       </div>

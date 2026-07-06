@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MessageCircle, X } from 'lucide-react'
 import { supabase } from '../lib/supabaseClient'
 import type { Session } from '@supabase/supabase-js'
@@ -7,12 +7,54 @@ interface Props {
   session: Session
 }
 
+const DRAFT_KEY = 'writer:reviewDraft'
+const AUTO_CLOSE_MS = 5000
+const SAVED_FLASH_MS = 1500
+
 // 대시보드 하단의 작은 리뷰 트리거. 평소엔 눈에 띄지 않는 텍스트 버튼으로만 있다가,
 // 클릭하면 모달로 피드백 입력창이 뜬다. Supabase reviews 테이블에 저장 (관리자만 조회 가능).
 export function ReviewWidget({ session }: Props) {
   const [isOpen, setIsOpen] = useState(false)
   const [message, setMessage] = useState('')
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [countdown, setCountdown] = useState(5)
+  const [showSavedFlash, setShowSavedFlash] = useState(false)
+
+  // 창을 열 때 이전에 중간 저장해둔 내용이 있으면 불러오기
+  useEffect(() => {
+    if (isOpen) {
+      setMessage(localStorage.getItem(DRAFT_KEY) ?? '')
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!showSavedFlash) return
+    const timer = setTimeout(() => setShowSavedFlash(false), SAVED_FLASH_MS)
+    return () => clearTimeout(timer)
+  }, [showSavedFlash])
+
+  // 유저가 직접 누르는 중간 저장 버튼 — 그 시점의 글을 그대로 저장
+  const handleSaveDraft = () => {
+    localStorage.setItem(DRAFT_KEY, message)
+    setShowSavedFlash(true)
+  }
+
+  // 전송 성공 후 5,4,3,2,1 카운트다운하며 자동으로 창 닫기
+  useEffect(() => {
+    if (status !== 'sent') return
+    setCountdown(AUTO_CLOSE_MS / 1000)
+    const interval = setInterval(() => {
+      setCountdown((prev) => prev - 1)
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [status])
+
+  useEffect(() => {
+    if (status === 'sent' && countdown <= 0) {
+      setIsOpen(false)
+      setStatus('idle')
+    }
+  }, [countdown, status])
 
   const handleSubmit = async () => {
     if (!message.trim()) return
@@ -24,6 +66,7 @@ export function ReviewWidget({ session }: Props) {
         message: message.trim(),
       })
       if (error) throw error
+      localStorage.removeItem(DRAFT_KEY)
       setMessage('')
       setStatus('sent')
     } catch {
@@ -70,7 +113,12 @@ export function ReviewWidget({ session }: Props) {
             </div>
 
             {status === 'sent' ? (
-              <p className="text-sm text-accent-green">소중한 의견 감사해요. 잘 전달됐어요.</p>
+              <div>
+                <p className="text-sm text-accent-green">소중한 의견 감사해요. 잘 전달됐어요.</p>
+                <p className="mt-2 text-xs text-ink-soft/60">
+                  {Math.max(countdown, 1)}초 후 창이 닫혀요
+                </p>
+              </div>
             ) : (
               <div className="flex flex-col gap-2">
                 <input
@@ -80,6 +128,25 @@ export function ReviewWidget({ session }: Props) {
                   autoFocus
                   className="rounded-full border border-paper-line bg-paper px-4 py-2 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none"
                 />
+
+                <div className="flex items-center justify-between px-1">
+                  <button
+                    type="button"
+                    onClick={handleSaveDraft}
+                    disabled={!message.trim()}
+                    className="text-[11px] text-ink-soft/60 underline-offset-2 transition-colors hover:text-ink-soft hover:underline disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    중간 저장
+                  </button>
+                  <span
+                    className={`text-[11px] text-ink-soft/40 transition-opacity duration-300 ${
+                      showSavedFlash ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  >
+                    중간 저장이 되고 있습니다
+                  </span>
+                </div>
+
                 <button
                   type="button"
                   onClick={handleSubmit}

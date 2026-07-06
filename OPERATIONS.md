@@ -24,7 +24,7 @@
 - ~~`ADMIN_EMAIL` 중복~~: 확인 결과 이미 해소됨 — 관리자 판별은 `admins` 테이블(`schema.sql`) 단일 기준이고 `config.ts`의 `SUPPORT_EMAIL`은 문의처 안내용으로만 쓰임 (`src/hooks/useIsAdmin.ts` 참고).
 - ~~CI/CD 없음~~: `.github/workflows/ci.yml` 추가(2026-07-06). `main` push·PR마다 lint+타입체크+빌드 자동 실행. 아직 배포(호스팅) 자체는 연결 안 함 — 배포처가 정해지면 CD 단계 추가 필요.
 - ~~테스트 없음~~: Vitest 도입(2026-07-06). `feedback.test.ts`(첨삭 규칙 10개 케이스), `archive.test.ts`(정렬·병합·스트릭 등 유닛 테스트) 추가, CI에 `npm run test` 단계 연결. 새 규칙/로직 추가 시 테스트도 같이 갱신할 것.
-- ~~에러 모니터링 없음~~: `@sentry/react` 도입(2026-07-06). `src/lib/monitoring.ts`가 `VITE_SENTRY_DSN` 설정 시에만 초기화, `main.tsx`에서 앱 전체를 `ErrorBoundary`(`src/components/ErrorFallback.tsx`)로 감싸 렌더링 중 에러를 잡고, 조용히 흡수되던 `pushEntry`/`useEntrySync` 동기화 실패도 `captureError`로 전송하도록 연결. DSN 미설정 시 콘솔 경고만 남기고 앱 동작에는 영향 없음.
+- ~~에러 모니터링 없음~~: `@sentry/react` 도입(2026-07-06). `src/lib/monitoring.ts`가 `VITE_SENTRY_DSN` 설정 시에만 초기화, `main.tsx`에서 앱 전체를 `ErrorBoundary`(`src/components/ErrorFallback.tsx`)로 감싸 렌더링 중 에러를 잡고, 조용히 흡수되던 `pushEntry`/`useEntrySync` 동기화 실패도 `captureError`로 전송하도록 연결. DSN 미설정 시 콘솔 경고만 남기고 앱 동작에는 영향 없음. **Sentry 프로젝트 생성·DSN 발급은 지금 미룸** — 아직 배포 전(로컬만 사용)이라 "프로덕션에서 유저가 겪는 에러를 모른다"는 리스크 자체가 실현될 상황이 아님. 배포 시점에 GA4 측정 ID와 함께 챙기면 됨(2026-07-06 결정).
 
 ### RLS 체크리스트 — Supabase에 새 테이블을 추가할 때마다
 1. `alter table <table> enable row level security;`를 빠뜨리지 않았는가?
@@ -72,7 +72,7 @@
 
 | 항목 | 우선순위 | 현재 상태 | 이유 / 다음 액션 |
 | --- | --- | --- | --- |
-| GA4/이탈 구간 추적 연동 | ✅ 완료(2026-07-06) | `src/lib/analytics.ts` 추가. `VITE_GA_MEASUREMENT_ID` 설정 시에만 gtag.js 로드(자동 페이지뷰), `writing_started`/`writing_completed`/`writing_exited_incomplete` 이벤트 전송. 측정 ID 미설정 시 아무 것도 안 함 | **사용자 액션 필요**: Google Analytics 콘솔에서 GA4 속성을 만들고 측정 ID(G-XXXXXXXXXX)를 발급받아 배포 환경의 `VITE_GA_MEASUREMENT_ID`에 넣어야 실제로 데이터가 쌓이기 시작함(콘솔 로그인이 필요해 코드로 대신할 수 없음) |
+| GA4/이탈 구간 추적 연동 | ✅ 완료(2026-07-06) | `src/lib/analytics.ts` 추가. `VITE_GA_MEASUREMENT_ID` 설정 시에만 gtag.js 로드(자동 페이지뷰), `writing_started`/`writing_completed`/`writing_exited_incomplete` 이벤트 전송. 측정 ID 미설정 시 아무 것도 안 함 | GA4 속성 생성·측정 ID 발급은 **배포 시점으로 미룸** — 아직 배포 전(로컬만 사용)이라 지금 콘솔 가입해봐야 쌓일 트래픽이 없음(2026-07-06 결정, Sentry DSN과 동일 사유) |
 
 ---
 
@@ -99,7 +99,8 @@
 - **2026-07-06**: P1 ⑦ 완료 — 초기 타겟을 "매일 일기 쓰고 싶은 직장인"으로 결정, 온보딩 카피와 기본 카테고리를 반영. **P1 코드 작업 전 항목 완료.**
 - **2026-07-06**: P0·P1 라운드 마무리. 남은 P2(공유 이미지 카드/수익 모델/푸시 알림)는 지금 만들면 검증할 유저가 없어 착수하지 않고, 로드맵 표에 실행 메모만 남겨둠 — 유저나 매출 신호가 생기면 이 문서부터 다시 확인할 것.
 - **2026-07-06**: 하루 1회 완료 잠금(`useDailyLock`) 관련 논의 정리 — 코드 확인 결과 1,000자를 채워도 자동 잠김이 아니라 유저가 완료 버튼을 직접 눌러야 잠기는 구조임을 확인. 이 제약을 없애기보다 워들/BeReal류처럼 서비스 정체성으로 유지하기로 결정.
-- **2026-07-06**: 기술 부채 "에러 모니터링 없음" 해소 — `@sentry/react` 도입, `src/lib/monitoring.ts` + 전역 `ErrorBoundary`(`src/components/ErrorFallback.tsx`) 추가, `pushEntry`/`useEntrySync`의 조용히 흡수되던 실패를 `captureError`로 연결. GA4와 마찬가지로 **사용자 액션 필요**: Sentry에서 프로젝트를 만들어 DSN을 발급받아 배포 환경의 `VITE_SENTRY_DSN`에 넣어야 실제로 에러가 수집되기 시작함. 이걸로 원래 PM 점검(1~5번) 전 항목 완료.
+- **2026-07-06**: 기술 부채 "에러 모니터링 없음" 해소 — `@sentry/react` 도입, `src/lib/monitoring.ts` + 전역 `ErrorBoundary`(`src/components/ErrorFallback.tsx`) 추가, `pushEntry`/`useEntrySync`의 조용히 흡수되던 실패를 `captureError`로 연결. 이걸로 원래 PM 점검(1~5번) 전 항목 완료.
+- **2026-07-06**: Sentry DSN 발급·GA4 측정 ID 발급 둘 다 **지금은 미루기로 결정**. 아직 배포 전(로컬만 사용)이라 "프로덕션 에러/트래픽 모니터링"이 당장 필요한 상황이 아님 — 코드는 이미 대기 상태(env var 없으면 무동작)이니 실제 배포하는 시점에 두 개 다 같이 발급받아 넣으면 됨.
 
 
 + 관리자 메모

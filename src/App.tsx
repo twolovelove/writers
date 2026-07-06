@@ -5,6 +5,8 @@ import { Archive } from './pages/Archive'
 import { EntryView } from './pages/EntryView'
 import { Compilation } from './pages/Compilation'
 import { Login } from './pages/Login'
+import { Settings } from './pages/Settings'
+import { AdminReviews } from './pages/AdminReviews'
 import { getAllDrafts } from './utils/archive'
 import { useSession } from './hooks/useSession'
 import { supabase } from './lib/supabaseClient'
@@ -16,6 +18,8 @@ type View =
   | { name: 'archive' }
   | { name: 'entry'; entry: DraftEntry; from: 'dashboard' | 'archive' }
   | { name: 'compilation' }
+  | { name: 'settings' }
+  | { name: 'admin' }
 
 function App() {
   const [view, setView] = useState<View>({ name: 'dashboard' })
@@ -57,10 +61,21 @@ function App() {
     return <Compilation entries={getAllDrafts()} onBack={() => setView({ name: 'archive' })} />
   }
 
+  if (view.name === 'settings') {
+    return <Settings session={session} onBack={() => setView({ name: 'dashboard' })} />
+  }
+
+  if (view.name === 'admin') {
+    return <AdminReviews onBack={() => setView({ name: 'dashboard' })} />
+  }
+
   return (
     <Dashboard
+      session={session}
       onStartWriting={(category, prompt) => setView({ name: 'editor', category, prompt })}
       onOpenArchive={() => setView({ name: 'archive' })}
+      onOpenSettings={() => setView({ name: 'settings' })}
+      onOpenAdmin={() => setView({ name: 'admin' })}
       onViewEntry={(entry) => setView({ name: 'entry', entry, from: 'dashboard' })}
       onLogout={() => supabase.auth.signOut()}
     />

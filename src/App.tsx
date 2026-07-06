@@ -5,6 +5,7 @@ import { Archive } from './pages/Archive'
 import { EntryView } from './pages/EntryView'
 import { Compilation } from './pages/Compilation'
 import { Login } from './pages/Login'
+import { PrivacyPolicy } from './pages/PrivacyPolicy'
 import { Settings } from './pages/Settings'
 import { AdminReviews } from './pages/AdminReviews'
 import { getAllDrafts } from './utils/archive'
@@ -23,10 +24,12 @@ type View =
 
 function App() {
   const [view, setView] = useState<View>({ name: 'dashboard' })
+  const [showPrivacy, setShowPrivacy] = useState(false)
   const { session, loading } = useSession()
 
   if (loading) return null
-  if (!session) return <Login />
+  if (showPrivacy) return <PrivacyPolicy onBack={() => setShowPrivacy(false)} />
+  if (!session) return <Login onOpenPrivacy={() => setShowPrivacy(true)} />
 
   if (view.name === 'editor') {
     return (
@@ -62,7 +65,13 @@ function App() {
   }
 
   if (view.name === 'settings') {
-    return <Settings session={session} onBack={() => setView({ name: 'dashboard' })} />
+    return (
+      <Settings
+        session={session}
+        onBack={() => setView({ name: 'dashboard' })}
+        onLogout={() => supabase.auth.signOut()}
+      />
+    )
   }
 
   if (view.name === 'admin') {
@@ -77,7 +86,6 @@ function App() {
       onOpenSettings={() => setView({ name: 'settings' })}
       onOpenAdmin={() => setView({ name: 'admin' })}
       onViewEntry={(entry) => setView({ name: 'entry', entry, from: 'dashboard' })}
-      onLogout={() => supabase.auth.signOut()}
     />
   )
 }

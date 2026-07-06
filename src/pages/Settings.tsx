@@ -1,10 +1,11 @@
-import { ArrowLeft, ShieldCheck, Trash2 } from 'lucide-react'
+import { ArrowLeft, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
 import { supabase } from '../lib/supabaseClient'
 import type { Session } from '@supabase/supabase-js'
 
 interface Props {
   session: Session
   onBack: () => void
+  onLogout: () => void
 }
 
 function clearLocalWritingData() {
@@ -18,7 +19,7 @@ function clearLocalWritingData() {
 
 // Page: 개인정보 안내와 데이터 삭제/회원 탈퇴를 다루는 설정 화면.
 // 글 데이터는 이 기기의 LocalStorage에만 저장되며, Supabase에는 로그인 정보만 남는다.
-export function Settings({ session, onBack }: Props) {
+export function Settings({ session, onBack, onLogout }: Props) {
   const handleDeleteData = () => {
     if (!window.confirm('이 기기에 저장된 글 데이터를 모두 삭제할까요? 되돌릴 수 없어요.')) return
     clearLocalWritingData()
@@ -59,6 +60,21 @@ export function Settings({ session, onBack }: Props) {
           사용돼요. 글의 내용은 서버로 전송되지 않고 이 기기의 브라우저(LocalStorage)에만
           저장돼요. 보유기간 제한은 없으며, 아래에서 언제든 직접 삭제할 수 있어요.
         </p>
+      </section>
+
+      <section className="mb-6 rounded-2xl border border-paper-line p-6">
+        <p className="text-sm text-ink">로그아웃</p>
+        <p className="mt-1.5 text-xs leading-relaxed text-ink-soft">
+          이 기기에서 로그아웃해요. 글 데이터는 그대로 남아있어요.
+        </p>
+        <button
+          type="button"
+          onClick={onLogout}
+          className="mt-4 flex items-center gap-1.5 rounded-full border border-paper-line px-4 py-2 text-xs text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+        >
+          <LogOut size={13} strokeWidth={1.75} />
+          로그아웃
+        </button>
       </section>
 
       <section className="mb-6 rounded-2xl border border-paper-line p-6">

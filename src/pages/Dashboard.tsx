@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BookOpen, LogOut, Settings as SettingsIcon, ShieldCheck } from 'lucide-react'
+import { BookOpen, Settings as SettingsIcon, ShieldCheck } from 'lucide-react'
 import { CategorySelector } from '../components/CategorySelector'
 import { PromptCard } from '../components/PromptCard'
 import { CompletedTodayCard } from '../components/CompletedTodayCard'
@@ -20,7 +20,6 @@ interface Props {
   onOpenSettings: () => void
   onOpenAdmin: () => void
   onViewEntry: (entry: DraftEntry) => void
-  onLogout: () => void
 }
 
 // Page 1: 오늘 날짜와 카테고리를 고르면 그에 맞는 '오늘의 글감'을 보여주는 대시보드.
@@ -32,7 +31,6 @@ export function Dashboard({
   onOpenSettings,
   onOpenAdmin,
   onViewEntry,
-  onLogout,
 }: Props) {
   const [category, setCategory] = useState<Category>(
     () => (localStorage.getItem(LAST_CATEGORY_KEY) as Category | null) ?? '에세이',
@@ -54,7 +52,7 @@ export function Dashboard({
           <p className="text-sm tracking-widest text-ink-soft">{formatKoreanDate(today)}</p>
           <h1 className="mt-2 text-3xl text-ink sm:text-4xl">오늘의 글쓰기</h1>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-            매일 1,000자, 짧은 글감 하나면 충분합니다. 오늘 쓰고 싶은 결을 골라보세요.
+            매일 1,000자, 짧은 글감 하나면 충분합니다. 오늘은 어떤 글을 써볼까요?
           </p>
         </div>
 
@@ -84,14 +82,6 @@ export function Dashboard({
           >
             <SettingsIcon size={15} strokeWidth={1.75} />
             설정
-          </button>
-          <button
-            type="button"
-            onClick={onLogout}
-            className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
-          >
-            <LogOut size={15} strokeWidth={1.75} />
-            로그아웃
           </button>
         </div>
       </header>

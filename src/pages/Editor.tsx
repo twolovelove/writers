@@ -89,13 +89,16 @@ export function Editor({ category, prompt, onBack }: Props) {
         </div>
 
         {!isPreview && (
-          <div className="px-6 pt-5 sm:px-8">
+          <div className="flex items-center gap-2 border-b border-paper-line/70 px-6 pb-4 pt-5 sm:px-8">
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="제목을 입력하세요 (선택)"
-              className="w-full bg-transparent text-xl text-ink placeholder:text-ink-soft/50 focus:outline-none"
+              placeholder="제목을 입력하세요"
+              className="min-w-0 flex-1 bg-transparent text-xl text-ink placeholder:text-ink-soft/50 focus:outline-none"
             />
+            {!title && (
+              <span className="shrink-0 whitespace-nowrap text-xs tracking-[0.1em] text-ink-soft/50">선택</span>
+            )}
           </div>
         )}
 

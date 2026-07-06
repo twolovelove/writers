@@ -1,9 +1,13 @@
 import { PenLine } from 'lucide-react'
 import { supabase } from '../lib/supabaseClient'
 
+interface Props {
+  onOpenPrivacy: () => void
+}
+
 // Page: 로그인 전 진입 화면. Google 계정으로 로그인하면 여러 기기에서
 // 같은 계정으로 글쓰기 기록을 이어갈 수 있다.
-export function Login() {
+export function Login({ onOpenPrivacy }: Props) {
   const handleGoogleLogin = () => {
     supabase.auth.signInWithOAuth({ provider: 'google' })
   }
@@ -25,6 +29,14 @@ export function Login() {
         className="mt-8 w-full rounded-full bg-ink py-3 text-sm tracking-wide text-paper transition-colors duration-200 hover:bg-accent-indigo"
       >
         Google 계정으로 계속하기
+      </button>
+
+      <button
+        type="button"
+        onClick={onOpenPrivacy}
+        className="mt-5 text-xs text-ink-soft/60 underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
+      >
+        개인정보처리방침
       </button>
     </div>
   )

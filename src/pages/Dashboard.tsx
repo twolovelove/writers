@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BookOpen, Settings as SettingsIcon, ShieldCheck } from 'lucide-react'
+import { BookOpen, Flame, Settings as SettingsIcon, ShieldCheck } from 'lucide-react'
 import { CategorySelector } from '../components/CategorySelector'
 import { PromptCard } from '../components/PromptCard'
 import { CompletedTodayCard } from '../components/CompletedTodayCard'
@@ -8,6 +8,7 @@ import { getPromptForDate } from '../data/prompts'
 import { useDailyLock } from '../hooks/useDailyLock'
 import { useIsAdmin } from '../hooks/useIsAdmin'
 import { formatKoreanDate } from '../utils/date'
+import { getAllDrafts, getStreak } from '../utils/archive'
 import type { Session } from '@supabase/supabase-js'
 import type { Category, DraftEntry, WritingPrompt } from '../types'
 
@@ -39,6 +40,7 @@ export function Dashboard({
   const today = new Date()
   const prompt = getPromptForDate(today, category)
   const isAdmin = useIsAdmin(session.user.id)
+  const streak = getStreak(getAllDrafts())
 
   const handleSelectCategory = (next: Category) => {
     setCategory(next)
@@ -51,6 +53,12 @@ export function Dashboard({
         <div>
           <p className="text-sm tracking-widest text-ink-soft">{formatKoreanDate(today)}</p>
           <h1 className="mt-2 text-3xl text-ink sm:text-4xl">오늘의 글쓰기</h1>
+          {streak > 0 && (
+            <p className="mt-2 flex items-center gap-1 text-xs text-accent-indigo">
+              <Flame size={14} strokeWidth={1.75} />
+              {streak}일째 연속 작성 중
+            </p>
+          )}
           <p className="mt-3 text-sm leading-relaxed text-ink-soft">
             매일 1,000자, 짧은 글감 하나면 충분합니다. 오늘은 어떤 글을 써볼까요?
           </p>

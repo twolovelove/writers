@@ -34,6 +34,9 @@ export function useDraft(
 
   const persist = useCallback(
     async (nextTitle: string, nextContent: string, nextFeedback: FeedbackItem[] | null) => {
+      // 제목도 본문도 비어 있으면 저장할 게 없다 — 글감만 열어보고 아무것도 안 쓴 채
+      // 나가도 "쓴 글" 목록에 빈 항목이 생기지 않게 여기서 막는다.
+      if (!nextTitle.trim() && !nextContent.trim()) return
       const charCount = nextContent.length
       const entry: DraftEntry = {
         date,

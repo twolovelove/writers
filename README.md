@@ -47,6 +47,10 @@ VITE_SUPABASE_ANON_KEY=your-anon-public-key
 글쓰기 시작(`writing_started`)·완료(`writing_completed`)·미완료 이탈(`writing_exited_incomplete`)
 이벤트가 GA4로 전송됩니다. 비워두면 분석 코드(`src/lib/analytics.ts`)가 아무 것도 하지 않습니다.
 
+`VITE_SENTRY_DSN`도 선택 사항입니다. 설정하면 화면에서 잡히지 않는 에러(렌더링 오류, 글 동기화
+실패 등)가 Sentry로 전송됩니다. 비워두면 모니터링 코드(`src/lib/monitoring.ts`)가 아무 것도 하지
+않고 콘솔 경고만 남깁니다.
+
 ### Supabase 설정
 
 `supabase/schema.sql`을 Supabase SQL 편집기에서 실행해야 글 데이터 백업(`entries`)과 리뷰 위젯·관리자 페이지(`reviews`, `admins`)가 동작합니다. 관리자 권한은 `admins` 테이블에 등록된 계정인지 여부로만 판단하므로(프론트엔드·RLS 공통 기준), 관리자를 추가하려면 SQL 편집기에서 다음을 실행하세요.

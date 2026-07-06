@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient'
+import { captureError } from './monitoring'
 import type { Category, DraftEntry, FeedbackItem } from '../types'
 
 interface EntryRow {
@@ -54,7 +55,7 @@ export async function pushEntry(userId: string, entry: DraftEntry): Promise<void
   const { error } = await supabase
     .from('entries')
     .upsert(toRow(entry, userId), { onConflict: 'user_id,date,category' })
-  if (error) console.warn('글 서버 동기화 실패:', error.message)
+  if (error) captureError(error, { where: 'pushEntry', date: entry.date, category: entry.category })
 }
 
 // 회원 탈퇴 시 계정에 남은 글 데이터를 전부 삭제한다

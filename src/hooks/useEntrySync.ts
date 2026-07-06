@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { pullEntries, pushEntry } from '../lib/entries'
+import { captureError } from '../lib/monitoring'
 import { applyNewerRemoteEntry, getAllDrafts } from '../utils/archive'
 
 function entryKey(entry: { date: string; category: string }) {
@@ -39,7 +40,7 @@ export function useEntrySync(userId: string | null) {
           }
         }
       } catch (error) {
-        console.warn('글 동기화 실패, 로컬 데이터로 계속 진행합니다:', error)
+        captureError(error, { where: 'useEntrySync', userId })
       } finally {
         if (!cancelled) setSyncing(false)
       }

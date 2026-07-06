@@ -9,7 +9,7 @@
 - **첨삭 노트**: 문장 길이·접속사 반복·강조어 남용·문장 시작 반복·문단 구성·마무리·서식 활용을 훑어보고 칭찬과 제안, 종합 총평을 알려주는 규칙 기반 첨삭 (완료 후엔 지난 글 보기에서도 다시 확인 가능)
 - **아카이브**: 글을 쓴 날짜를 달력으로 한눈에 확인하고, 지난 글을 읽기 전용으로 다시 볼 수 있음
 - **모음집**: 지금까지 쓴 글을 책처럼 엮어 월별로 보거나 목차와 함께 인쇄·PDF로 저장
-- **로그인**: Supabase 기반 Google 로그인
+- **로그인**: Supabase 기반 Google 로그인, 글 데이터를 계정에 백업해 기기 간 동기화
 - **설정**: 개인정보 안내, 기기 데이터 삭제, 회원 탈퇴(로그아웃 + 데이터 삭제)
 - **리뷰 위젯 & 관리자 페이지**: 사용자 피드백을 남기면 관리자 계정만 볼 수 있는 페이지에서 확인
 
@@ -18,10 +18,12 @@
 - React 19 + TypeScript
 - Vite 8
 - Tailwind CSS
-- Supabase (Auth, 리뷰 데이터)
+- Supabase (Auth, 글 데이터, 리뷰 데이터)
 - lucide-react (아이콘)
 
-글쓰기 초고 자체는 아직 기기별 LocalStorage에만 저장되며, 로그인해도 기기 간 동기화는 되지 않습니다.
+글쓰기 초고는 이 기기의 LocalStorage에 즉시 저장되고, 로그인 계정에 연결된 Supabase에도 백업됩니다.
+로그인할 때마다 이 기기와 서버의 글을 비교해 더 최신 쪽으로 맞추기 때문에, 다른 기기에서 로그인해도
+지금까지 쓴 글을 이어서 볼 수 있습니다.
 
 ## 시작하기
 
@@ -41,7 +43,7 @@ VITE_SUPABASE_ANON_KEY=your-anon-public-key
 
 ### Supabase 설정
 
-리뷰 위젯과 관리자 페이지를 쓰려면 `supabase/schema.sql`을 Supabase SQL 편집기에서 실행해야 합니다. 관리자 이메일은 [src/config.ts](src/config.ts)의 `ADMIN_EMAIL`과 `schema.sql`의 RLS 정책이 항상 같은 값이어야 합니다.
+`supabase/schema.sql`을 Supabase SQL 편집기에서 실행해야 글 데이터 백업(`entries`)과 리뷰 위젯·관리자 페이지(`reviews`)가 동작합니다. 관리자 이메일은 [src/config.ts](src/config.ts)의 `ADMIN_EMAIL`과 `schema.sql`의 RLS 정책이 항상 같은 값이어야 합니다.
 
 ## 스크립트
 

@@ -1,5 +1,6 @@
 import { ArrowLeft, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
 import { supabase } from '../lib/supabaseClient'
+import { deleteAllEntries } from '../lib/entries'
 import type { Session } from '@supabase/supabase-js'
 
 interface Props {
@@ -18,10 +19,15 @@ function clearLocalWritingData() {
 }
 
 // Page: 개인정보 안내와 데이터 삭제/회원 탈퇴를 다루는 설정 화면.
-// 글 데이터는 이 기기의 LocalStorage에만 저장되며, Supabase에는 로그인 정보만 남는다.
+// 글 데이터는 로그인 계정에 연결되어 Supabase에 백업되며, 본인만 열람할 수 있다.
 export function Settings({ session, onBack, onLogout }: Props) {
   const handleDeleteData = () => {
-    if (!window.confirm('이 기기에 저장된 글 데이터를 모두 삭제할까요? 되돌릴 수 없어요.')) return
+    if (
+      !window.confirm(
+        '이 기기에 저장된 글 데이터를 지울까요? 계정에 백업된 글은 남아있어 다음 로그인 시 다시 내려받아져요.',
+      )
+    )
+      return
     clearLocalWritingData()
     window.location.reload()
   }
@@ -29,10 +35,11 @@ export function Settings({ session, onBack, onLogout }: Props) {
   const handleWithdraw = async () => {
     if (
       !window.confirm(
-        '회원 탈퇴를 진행할까요? 이 기기의 글 데이터가 모두 삭제되고 로그아웃돼요.',
+        '회원 탈퇴를 진행할까요? 계정에 백업된 글과 이 기기의 글 데이터가 모두 삭제되고 로그아웃돼요.',
       )
     )
       return
+    await deleteAllEntries(session.user.id)
     clearLocalWritingData()
     await supabase.auth.signOut()
   }
@@ -56,9 +63,10 @@ export function Settings({ session, onBack, onLogout }: Props) {
           <p className="text-xs tracking-[0.2em]">개인정보 안내</p>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-          로그인 계정 <span className="text-ink">{session.user.email}</span>은 로그인 처리에만
-          사용돼요. 글의 내용은 서버로 전송되지 않고 이 기기의 브라우저(LocalStorage)에만
-          저장돼요. 보유기간 제한은 없으며, 아래에서 언제든 직접 삭제할 수 있어요.
+          로그인 계정 <span className="text-ink">{session.user.email}</span>에 글이 연결되어
+          기기가 바뀌어도 이어서 볼 수 있도록 Supabase에 백업돼요. 본인 계정으로 로그인했을 때만
+          열람할 수 있고, 관리자를 포함한 다른 누구도 볼 수 없어요. 보유기간 제한은 없으며, 아래에서
+          언제든 직접 삭제할 수 있어요.
         </p>
       </section>
 
@@ -80,7 +88,8 @@ export function Settings({ session, onBack, onLogout }: Props) {
       <section className="mb-6 rounded-2xl border border-paper-line p-6">
         <p className="text-sm text-ink">이 기기의 글 데이터 삭제</p>
         <p className="mt-1.5 text-xs leading-relaxed text-ink-soft">
-          지금까지 쓴 모든 글과 설정을 이 기기에서 지워요. 로그인 상태는 유지돼요.
+          이 기기에 저장된 글과 설정을 지워요. 로그인 상태는 유지되며, 계정에 백업된 글은 다음
+          로그인 시 이 기기로 다시 내려받아져요.
         </p>
         <button
           type="button"
@@ -95,8 +104,8 @@ export function Settings({ session, onBack, onLogout }: Props) {
       <section className="rounded-2xl border border-paper-line p-6">
         <p className="text-sm text-ink">회원 탈퇴</p>
         <p className="mt-1.5 text-xs leading-relaxed text-ink-soft">
-          이 기기의 글 데이터를 지우고 로그아웃해요. 로그인 계정 자체(이메일 등)를 완전히
-          삭제하려면 별도 절차가 필요해 관리자에게 문의해주세요.
+          계정에 백업된 글과 이 기기의 글 데이터를 모두 지우고 로그아웃해요. 로그인 계정 자체
+          (이메일 등)를 완전히 삭제하려면 별도 절차가 필요해 관리자에게 문의해주세요.
         </p>
         <button
           type="button"

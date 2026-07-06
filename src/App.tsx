@@ -10,6 +10,7 @@ import { Settings } from './pages/Settings'
 import { AdminReviews } from './pages/AdminReviews'
 import { getAllDrafts } from './utils/archive'
 import { useSession } from './hooks/useSession'
+import { useEntrySync } from './hooks/useEntrySync'
 import { supabase } from './lib/supabaseClient'
 import type { Category, DraftEntry, WritingPrompt } from './types'
 
@@ -26,14 +27,17 @@ function App() {
   const [view, setView] = useState<View>({ name: 'dashboard' })
   const [showPrivacy, setShowPrivacy] = useState(false)
   const { session, loading } = useSession()
+  const { syncing } = useEntrySync(session?.user.id ?? null)
 
   if (loading) return null
   if (showPrivacy) return <PrivacyPolicy onBack={() => setShowPrivacy(false)} />
   if (!session) return <Login onOpenPrivacy={() => setShowPrivacy(true)} />
+  if (syncing) return null
 
   if (view.name === 'editor') {
     return (
       <Editor
+        session={session}
         category={view.category}
         prompt={view.prompt}
         onBack={() => setView({ name: 'dashboard' })}

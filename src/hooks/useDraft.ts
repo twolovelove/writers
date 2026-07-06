@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDebounce } from './useDebounce'
+import { pushEntry } from '../lib/entries'
 import type { Category, DraftEntry, FeedbackItem } from '../types'
 
 const GOAL_CHARS = 1000
@@ -24,6 +25,7 @@ function persistDraft(
   title: string,
   content: string,
   feedback: FeedbackItem[] | null,
+  userId: string,
 ): string {
   const charCount = content.length
   const entry: DraftEntry = {
@@ -38,12 +40,14 @@ function persistDraft(
     ...(feedback ? { feedback } : {}),
   }
   localStorage.setItem(storageKey(date, category), JSON.stringify(entry))
+  pushEntry(userId, entry)
   return entry.updatedAt
 }
 
 // 특정 날짜 + 카테고리의 초고(제목 + 본문)를 불러오고, 타이핑이 멈춘 뒤 1초 후
-// 자동으로 LocalStorage에 저장하는 훅. 글자 수 계산과 목표 달성 여부도 함께 관리한다.
-export function useDraft(date: string, category: Category, promptId: string) {
+// 자동으로 LocalStorage에 저장하는 훅. 글자 수 계산과 목표 달성 여부도 함께 관리하며,
+// 저장할 때마다 Supabase에도 백업해 기기 간 동기화가 되게 한다.
+export function useDraft(date: string, category: Category, promptId: string, userId: string) {
   const [title, setTitle] = useState(() => loadDraft(date, category)?.title ?? '')
   const [content, setContent] = useState(() => loadDraft(date, category)?.content ?? '')
   const [feedback, setFeedback] = useState<FeedbackItem[] | null>(
@@ -71,23 +75,23 @@ export function useDraft(date: string, category: Category, promptId: string) {
       isFirstRun.current = false
       return
     }
-    setLastSavedAt(persistDraft(date, category, promptId, debounced.title, debounced.content, feedback))
+    setLastSavedAt(persistDraft(date, category, promptId, debounced.title, debounced.content, feedback, userId))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debounced])
 
   // 디바운스를 기다리지 않고 즉시 저장 (예: '오늘의 글쓰기 완료' 버튼 클릭 시)
   const saveNow = useCallback(() => {
-    setLastSavedAt(persistDraft(date, category, promptId, title, content, feedback))
+    setLastSavedAt(persistDraft(date, category, promptId, title, content, feedback, userId))
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, category, promptId, title, content, feedback])
+  }, [date, category, promptId, title, content, feedback, userId])
 
   // 첨삭 노트를 생성한 뒤 초고와 함께 저장해, 지난 글 보기에서도 다시 볼 수 있게 한다
   const saveFeedback = useCallback(
     (items: FeedbackItem[]) => {
       setFeedback(items)
-      setLastSavedAt(persistDraft(date, category, promptId, title, content, items))
+      setLastSavedAt(persistDraft(date, category, promptId, title, content, items, userId))
     },
-    [date, category, promptId, title, content],
+    [date, category, promptId, title, content, userId],
   )
 
   const charCount = content.length

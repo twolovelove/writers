@@ -1,5 +1,6 @@
 import { useRef, useState, type KeyboardEvent } from 'react'
 import { ArrowLeft, CheckCircle2 } from 'lucide-react'
+import type { Session } from '@supabase/supabase-js'
 import { EditorToolbar } from '../components/EditorToolbar'
 import { ProgressBar } from '../components/ProgressBar'
 import { FeedbackPanel } from '../components/FeedbackPanel'
@@ -10,6 +11,7 @@ import { toISODate } from '../utils/date'
 import type { Category, WritingPrompt } from '../types'
 
 interface Props {
+  session: Session
   category: Category
   prompt: WritingPrompt
   onBack: () => void
@@ -17,7 +19,7 @@ interface Props {
 
 // Page 2: 종이 원고지 느낌의 텍스트 에디터. 벨로그 스타일 서식 도구, 실시간 글자 수,
 // 자동 저장, 목표 달성 피드백을 모두 이 화면에서 처리한다.
-export function Editor({ category, prompt, onBack }: Props) {
+export function Editor({ session, category, prompt, onBack }: Props) {
   const date = toISODate(new Date())
   const {
     title,
@@ -31,7 +33,7 @@ export function Editor({ category, prompt, onBack }: Props) {
     saveNow,
     feedback,
     saveFeedback,
-  } = useDraft(date, category, prompt.id)
+  } = useDraft(date, category, prompt.id, session.user.id)
   const [isPreview, setIsPreview] = useState(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 

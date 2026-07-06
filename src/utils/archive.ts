@@ -3,6 +3,10 @@ import type { DraftEntry } from '../types'
 
 const PREFIX = 'writer:draft:'
 
+function storageKey(entry: Pick<DraftEntry, 'date' | 'category'>) {
+  return `${PREFIX}${entry.date}:${entry.category}`
+}
+
 // 사용자가 직접 붙인 제목이 있으면 그것을, 없으면 글감 제목을 대신 보여준다
 export function displayTitle(entry: DraftEntry): string {
   if (entry.title.trim()) return entry.title.trim()
@@ -31,4 +35,10 @@ export function getAllDrafts(): DraftEntry[] {
       if (a.date !== b.date) return a.date < b.date ? 1 : -1
       return a.category.localeCompare(b.category)
     })
+}
+
+// 서버에서 받아온 글이 이 기기의 글보다 최신이면 LocalStorage에 반영한다
+export function applyNewerRemoteEntry(remote: DraftEntry, local: DraftEntry | null) {
+  if (local && local.updatedAt >= remote.updatedAt) return
+  localStorage.setItem(storageKey(remote), JSON.stringify(remote))
 }

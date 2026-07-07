@@ -53,37 +53,42 @@ export function Dashboard({
               {streak}일째 연속 작성 중
             </p>
           )}
-          <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-            매일 1,000자, 짧은 글감 하나면 충분합니다. 오늘은 어떤 글을 써볼까요?
-          </p>
+          {streak === 0 && (
+            <p className="mt-3 text-sm leading-relaxed text-ink-soft">
+              매일 1,000자, 짧은 글감 하나면 충분해요.
+            </p>
+          )}
         </div>
 
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1">
+        <div className="flex shrink-0 items-center justify-end gap-1">
           <button
             type="button"
             onClick={onOpenArchive}
-            className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+            title="내가 쓴 글"
+            aria-label="내가 쓴 글"
+            className="flex items-center justify-center rounded-full p-2.5 text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
           >
-            <BookOpen size={15} strokeWidth={1.75} />
-            내가 쓴 글
+            <BookOpen size={18} strokeWidth={1.75} />
           </button>
           {isAdmin && (
             <button
               type="button"
               onClick={onOpenAdmin}
-              className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+              title="관리자"
+              aria-label="관리자"
+              className="flex items-center justify-center rounded-full p-2.5 text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
             >
-              <ShieldCheck size={15} strokeWidth={1.75} />
-              관리자
+              <ShieldCheck size={18} strokeWidth={1.75} />
             </button>
           )}
           <button
             type="button"
             onClick={onOpenSettings}
-            className="flex items-center gap-1.5 rounded-full px-3 py-2 text-xs text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+            title="설정"
+            aria-label="설정"
+            className="flex items-center justify-center rounded-full p-2.5 text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
           >
-            <SettingsIcon size={15} strokeWidth={1.75} />
-            설정
+            <SettingsIcon size={18} strokeWidth={1.75} />
           </button>
         </div>
       </header>
@@ -98,7 +103,7 @@ export function Dashboard({
         <section className="animate-fade-in rounded-2xl border border-paper-line bg-paper-cream/60 p-8 text-center shadow-paper sm:p-10">
           <PenLine size={20} strokeWidth={1.5} className="mx-auto text-accent-indigo" />
           <p className="mt-4 text-sm leading-relaxed text-ink-soft">
-            오늘은 어떤 글을 써볼까요?
+            하루 1,000자 이상 작성하면 오늘 글쓰기를 완료할 수 있어요.
           </p>
           <button
             type="button"
@@ -108,7 +113,7 @@ export function Dashboard({
             }}
             className="mt-6 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-paper transition-colors duration-200 hover:bg-accent-indigo"
           >
-            오늘의 글쓰기 시작하기
+            시작하기
           </button>
         </section>
       )}

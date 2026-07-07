@@ -20,7 +20,9 @@ export function useDraft(
   const [title, setTitle] = useState(initialEntry?.title ?? '')
   const [content, setContent] = useState(initialEntry?.content ?? '')
   const [feedback, setFeedback] = useState<FeedbackItem[] | null>(initialEntry?.feedback ?? null)
-  const debounced = useDebounce({ title, content }, 1000)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+  const debouncedTitle = useDebounce(title, 1000)
+  const debouncedContent = useDebounce(content, 1000)
   const isFirstRun = useRef(true)
 
   // 날짜/카테고리가 바뀌면 해당 초고로 다시 맞춘다
@@ -37,6 +39,7 @@ export function useDraft(
       // 제목도 본문도 비어 있으면 저장할 게 없다 — 글감만 열어보고 아무것도 안 쓴 채
       // 나가도 "쓴 글" 목록에 빈 항목이 생기지 않게 여기서 막는다.
       if (!nextTitle.trim() && !nextContent.trim()) return
+      setSaveStatus('saving')
       const charCount = nextContent.length
       const entry: DraftEntry = {
         date,
@@ -51,6 +54,7 @@ export function useDraft(
       }
       const saved = await pushEntry(userId, entry)
       onSaved(saved ?? entry)
+      setSaveStatus(saved ? 'saved' : 'error')
     },
     [date, category, promptId, userId, onSaved],
   )
@@ -61,13 +65,13 @@ export function useDraft(
       isFirstRun.current = false
       return
     }
-    persist(debounced.title, debounced.content, feedback)
+    persist(debouncedTitle, debouncedContent, feedback)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debounced])
+  }, [debouncedTitle, debouncedContent])
 
-  // 디바운스를 기다리지 않고 즉시 저장 (예: '오늘의 글쓰기 완료' 버튼 클릭 시)
+  // 디바운스를 기다리지 않고 즉시 저장 (예: '오늘의 글쓰기 완료', '임시 저장' 버튼 클릭 시)
   const saveNow = useCallback(() => {
-    persist(title, content, feedback)
+    return persist(title, content, feedback)
   }, [persist, title, content, feedback])
 
   // 첨삭 노트를 생성한 뒤 초고와 함께 저장해, 지난 글 보기에서도 다시 볼 수 있게 한다
@@ -93,6 +97,7 @@ export function useDraft(
     progress,
     isGoalMet,
     saveNow,
+    saveStatus,
     feedback,
     saveFeedback,
   }

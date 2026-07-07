@@ -18,8 +18,11 @@ function snippetOf(content: string): string {
   return plain.length > 70 ? `${plain.slice(0, 70)}…` : plain
 }
 
-// Page: 지금까지 쓴 모든 글을 달력과 목록으로 모아보는 아카이브
-export function Archive({ entries: drafts, onBack, onOpenEntry, onOpenCompilation }: Props) {
+// Page: 지금까지 쓴 모든 글을 달력과 목록으로 모아보는 아카이브.
+// 완료 못 한 초고는 하루 1회 완료 잠금 때문에 다시 이어 쓸 방법이 없어(useDailyLock 참고)
+// "쓰다 만 채로 영구히 남는 리소스"가 되므로, 완성작만 모아 보여주는 이 페이지에서는 제외한다.
+export function Archive({ entries: allEntries, onBack, onOpenEntry, onOpenCompilation }: Props) {
+  const drafts = allEntries.filter((entry) => entry.completed)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const visibleDrafts = selectedDate ? drafts.filter((d) => d.date === selectedDate) : drafts
 

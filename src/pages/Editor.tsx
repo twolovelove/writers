@@ -1,5 +1,5 @@
 import { useRef, useState, type KeyboardEvent } from 'react'
-import { ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, Save } from 'lucide-react'
 import type { Session } from '@supabase/supabase-js'
 import { EditorToolbar } from '../components/EditorToolbar'
 import { ProgressBar } from '../components/ProgressBar'
@@ -34,6 +34,7 @@ export function Editor({ session, category, prompt, initialEntry, onSaved, onBac
     progress,
     isGoalMet,
     saveNow,
+    saveStatus,
     feedback,
     saveFeedback,
   } = useDraft(date, category, prompt.id, session.user.id, initialEntry, onSaved)
@@ -74,6 +75,11 @@ export function Editor({ session, category, prompt, initialEntry, onSaved, onBac
     }
   }
 
+  const handleManualSave = () => {
+    saveNow()
+    trackEvent('writing_manual_save', { category, char_count: charCount })
+  }
+
   const handleComplete = () => {
     saveNow()
     saveFeedback(generateFeedback(content))
@@ -99,8 +105,9 @@ export function Editor({ session, category, prompt, initialEntry, onSaved, onBac
       </button>
 
       <div className="mb-6 rounded-xl bg-paper-cream/60 px-5 py-4">
-        <p className="text-xs tracking-[0.2em] text-accent-indigo">{category} · 오늘의 글감</p>
+        <p className="text-xs tracking-[0.2em] text-accent-indigo">{category} · 오늘의 추천 글감</p>
         <p className="mt-1 text-base text-ink">{prompt.title}</p>
+        <p className="mt-2 text-sm leading-relaxed text-ink-soft">{prompt.description}</p>
       </div>
 
       <div className="flex-1 rounded-2xl border border-paper-line bg-paper shadow-paper">
@@ -143,6 +150,28 @@ export function Editor({ session, category, prompt, initialEntry, onSaved, onBac
       </div>
 
       <div className="mt-6 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <span
+            className={[
+              'text-xs',
+              saveStatus === 'error' ? 'text-red-500' : 'text-ink-soft/60',
+            ].join(' ')}
+          >
+            {saveStatus === 'saving' && '자동저장 중...'}
+            {saveStatus === 'saved' && '자동저장됨'}
+            {saveStatus === 'error' && '저장 실패 · 다시 시도해주세요'}
+          </span>
+          <button
+            type="button"
+            onClick={handleManualSave}
+            disabled={saveStatus === 'saving' || (!title.trim() && !content.trim())}
+            className="flex items-center gap-1.5 rounded-full border border-paper-line px-3 py-1.5 text-xs text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <Save size={14} strokeWidth={1.75} />
+            임시 저장
+          </button>
+        </div>
+
         <div className="flex items-center justify-between text-sm text-ink-soft">
           <span>
             <span className={isGoalMet ? 'font-medium text-accent-green' : 'font-medium text-ink'}>

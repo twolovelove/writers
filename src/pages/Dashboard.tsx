@@ -1,10 +1,7 @@
-import { useState } from 'react'
-import { BookOpen, Flame, Settings as SettingsIcon, ShieldCheck } from 'lucide-react'
-import { CategorySelector } from '../components/CategorySelector'
-import { PromptCard } from '../components/PromptCard'
+import { BookOpen, Flame, PenLine, Settings as SettingsIcon, ShieldCheck } from 'lucide-react'
 import { CompletedTodayCard } from '../components/CompletedTodayCard'
 import { ReviewWidget } from '../components/ReviewWidget'
-import { getPromptForDate } from '../data/prompts'
+import { getTodaysWriting } from '../data/prompts'
 import { useDailyLock } from '../hooks/useDailyLock'
 import { useIsAdmin } from '../hooks/useIsAdmin'
 import { useAdminAlwaysWrite } from '../hooks/useAdminAlwaysWrite'
@@ -13,8 +10,6 @@ import { getStreak } from '../utils/archive'
 import { trackEvent } from '../lib/analytics'
 import type { Session } from '@supabase/supabase-js'
 import type { Category, DraftEntry, WritingPrompt } from '../types'
-
-const LAST_CATEGORY_KEY = 'writer:lastCategory'
 
 interface Props {
   session: Session
@@ -26,7 +21,8 @@ interface Props {
   onViewEntry: (entry: DraftEntry) => void
 }
 
-// Page 1: 오늘 날짜와 카테고리를 고르면 그에 맞는 '오늘의 글감'을 보여주는 대시보드.
+// Page 1: 오늘 날짜에 맞는 '오늘의 글감' 하나를 자동으로 추천해 보여주는 대시보드
+// (카테고리도 매일 결정론적으로 바뀌어 유저가 직접 고르지 않는다 — 워들처럼 "그날의 글감 하나").
 // 오늘 이미 목표를 채웠다면 새 글쓰기 대신 완료 카드와 다음 글감까지 남은 시간을 보여준다.
 export function Dashboard({
   session,
@@ -37,21 +33,13 @@ export function Dashboard({
   onOpenAdmin,
   onViewEntry,
 }: Props) {
-  const [category, setCategory] = useState<Category>(
-    () => (localStorage.getItem(LAST_CATEGORY_KEY) as Category | null) ?? '자유주제',
-  )
   const { isLockedToday, completedEntry, remainingMs } = useDailyLock(entries)
   const today = new Date()
-  const prompt = getPromptForDate(today, category)
+  const { category, prompt } = getTodaysWriting(today)
   const isAdmin = useIsAdmin(session.user.id)
   const [alwaysWrite] = useAdminAlwaysWrite()
   const streak = getStreak(entries)
   const showLockedCard = isLockedToday && !(isAdmin && alwaysWrite)
-
-  const handleSelectCategory = (next: Category) => {
-    setCategory(next)
-    localStorage.setItem(LAST_CATEGORY_KEY, next)
-  }
 
   return (
     <div className="mx-auto flex min-h-screen max-w-2xl flex-col px-6 py-16 sm:py-20">
@@ -107,22 +95,22 @@ export function Dashboard({
           onView={() => onViewEntry(completedEntry)}
         />
       ) : (
-        <>
-          <section className="mb-8">
-            <CategorySelector selected={category} onSelect={handleSelectCategory} />
-          </section>
-
-          <section>
-            <PromptCard
-              key={prompt.id}
-              prompt={prompt}
-              onStart={() => {
-                trackEvent('writing_started', { category, prompt_id: prompt.id })
-                onStartWriting(category, prompt)
-              }}
-            />
-          </section>
-        </>
+        <section className="animate-fade-in rounded-2xl border border-paper-line bg-paper-cream/60 p-8 text-center shadow-paper sm:p-10">
+          <PenLine size={20} strokeWidth={1.5} className="mx-auto text-accent-indigo" />
+          <p className="mt-4 text-sm leading-relaxed text-ink-soft">
+            오늘은 어떤 글을 써볼까요?
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              trackEvent('writing_started', { category, prompt_id: prompt.id })
+              onStartWriting(category, prompt)
+            }}
+            className="mt-6 rounded-full bg-ink px-7 py-3 text-sm tracking-wide text-paper transition-colors duration-200 hover:bg-accent-indigo"
+          >
+            오늘의 글쓰기 시작하기
+          </button>
+        </section>
       )}
 
       <ReviewWidget session={session} />

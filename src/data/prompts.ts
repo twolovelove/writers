@@ -355,3 +355,10 @@ export function getPromptForDate(date: Date, category: Category): WritingPrompt 
 }
 
 export const CATEGORIES: Category[] = ['자유주제', '에세이', '상상/소설', '자기계발', '비평']
+
+// 오늘의 카테고리 + 글감을 함께 결정론적으로 정한다. 유저가 카테고리를 고르지 않고,
+// 매일 하나의 글감만 추천받는 구조(워들처럼 "그날의 글감 하나")를 위한 진입점.
+export function getTodaysWriting(date: Date): { category: Category; prompt: WritingPrompt } {
+  const category = CATEGORIES[dayOfYear(date) % CATEGORIES.length]
+  return { category, prompt: getPromptForDate(date, category) }
+}

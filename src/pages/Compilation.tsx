@@ -16,7 +16,9 @@ const ALL_MONTHS = 'all'
 
 // Page: 지금까지 쓴 글을 책처럼 엮어 보여주는 모음집. 인쇄하거나 PDF로 저장해
 // 이메일로 보내는 등 원하는 방식으로 간직할 수 있다 (자동 발송은 지원하지 않음).
-export function Compilation({ entries, onBack }: Props) {
+// 완성작 모음집이라는 취지에 맞게 완료한 글만 담는다 (Archive.tsx와 동일한 필터).
+export function Compilation({ entries: allEntries, onBack }: Props) {
+  const entries = allEntries.filter((entry) => entry.completed)
   const [title, setTitle] = useState(() => localStorage.getItem(TITLE_KEY) ?? DEFAULT_TITLE)
 
   const handleTitleChange = (value: string) => {

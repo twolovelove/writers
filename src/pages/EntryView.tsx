@@ -27,7 +27,7 @@ export function EntryView({ entry, onBack }: Props) {
 
       <div className="mb-6 rounded-xl bg-paper-cream/60 px-5 py-4">
         <p className="text-xs tracking-[0.2em] text-accent-indigo">
-          {formatShortKoreanDate(entry.date)} · {entry.category} · 오늘의 글감
+          {formatShortKoreanDate(entry.date)} · {entry.category} · 오늘의 추천 글감
         </p>
         <p className="mt-1 text-base text-ink">{displayTitle(entry)}</p>
       </div>

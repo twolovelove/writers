@@ -23,7 +23,9 @@ interface Props {
 // Page 2: 종이 원고지 느낌의 텍스트 에디터. 벨로그 스타일 서식 도구, 실시간 글자 수,
 // 자동 저장, 목표 달성 피드백을 모두 이 화면에서 처리한다.
 export function Editor({ session, category, prompt, initialEntry, onSaved, onBack }: Props) {
-  const date = toISODate(new Date())
+  // 마운트 시점에 한 번만 고정 — 자정을 넘겨도 세션 도중에는 같은 날짜로 계속 저장된다.
+  // (렌더마다 재계산하면 자정 이후 타이핑 시 date가 바뀌어 초고가 리셋/분기되는 버그가 있었음)
+  const [date] = useState(() => toISODate(new Date()))
   const {
     title,
     setTitle,

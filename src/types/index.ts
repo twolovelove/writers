@@ -15,7 +15,7 @@ export interface FeedbackItem {
   message: string
 }
 
-// LocalStorage에 저장되는 하루치 글쓰기 기록
+// Supabase entries 테이블의 행 데이터 구조 (하루치 글쓰기 기록)
 export interface DraftEntry {
   date: string // YYYY-MM-DD
   category: Category

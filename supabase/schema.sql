@@ -1,5 +1,23 @@
 -- Supabase SQL 편집기(SQL Editor)에서 그대로 실행하세요. 여러 번 실행해도 안전합니다.
 
+-- 아래에서 이름으로 지정해 재생성하는 정책 외에, 과거에 Table Editor 등으로 만들어졌다가
+-- 잊혀진 정책(예: 기본 템플릿인 "Enable read access for all users")이 테이블에 남아있으면
+-- RLS는 여러 정책을 OR로 평가하므로 그 legacy 정책 하나만으로 의도치 않게 전체 공개가 될 수 있다.
+-- 그래서 이름을 몰라도 안전하게 정리되도록, admins/reviews/entries의 기존 정책을 전부 지우고
+-- 아래에서 의도한 정책만 다시 만든다.
+do $$
+declare
+  pol record;
+begin
+  for pol in
+    select policyname, tablename
+    from pg_policies
+    where schemaname = 'public' and tablename in ('admins', 'reviews', 'entries')
+  loop
+    execute format('drop policy if exists %I on %I', pol.policyname, pol.tablename);
+  end loop;
+end $$;
+
 -- admins 테이블: 관리자 권한을 부여할 계정의 user_id를 담아두는 단일 기준.
 -- 프론트엔드(관리자 메뉴 노출)와 RLS 정책(리뷰 전체 조회 등)이 모두 이 테이블 하나만 참조하므로,
 -- 관리자를 바꾸거나 추가할 때 여러 곳을 손대며 값이 어긋날 걱정이 없다.

@@ -8,6 +8,7 @@ interface Props {
 }
 
 const AUTO_CLOSE_MS = 5000
+const MAX_MESSAGE_LENGTH = 100
 
 // 대시보드 하단의 작은 리뷰 트리거. 평소엔 눈에 띄지 않는 텍스트 버튼으로만 있다가,
 // 클릭하면 모달로 피드백 입력창이 뜬다. Supabase reviews 테이블에 저장 (관리자만 조회 가능).
@@ -34,8 +35,10 @@ export function ReviewWidget({ session }: Props) {
     }
   }, [countdown, status])
 
+  const isOverLimit = message.length > MAX_MESSAGE_LENGTH
+
   const handleSubmit = async () => {
-    if (!message.trim()) return
+    if (!message.trim() || isOverLimit) return
     setStatus('sending')
     try {
       const { error } = await supabase.from('reviews').insert({
@@ -100,18 +103,28 @@ export function ReviewWidget({ session }: Props) {
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                <input
+                <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="편하게 남겨주세요"
                   autoFocus
-                  className="rounded-full border border-paper-line bg-paper px-4 py-2 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none"
+                  rows={3}
+                  maxLength={MAX_MESSAGE_LENGTH}
+                  className="resize-none rounded-2xl border border-paper-line bg-paper px-4 py-2 text-sm text-ink placeholder:text-ink-soft/60 focus:outline-none"
                 />
+
+                <p
+                  className={`self-end text-xs ${
+                    message.length >= MAX_MESSAGE_LENGTH ? 'text-accent-red' : 'text-ink-soft/60'
+                  }`}
+                >
+                  {message.length} / {MAX_MESSAGE_LENGTH}
+                </p>
 
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  disabled={status === 'sending' || !message.trim()}
+                  disabled={status === 'sending' || !message.trim() || isOverLimit}
                   className="rounded-full bg-ink px-5 py-2 text-xs tracking-wide text-paper transition-colors hover:bg-accent-indigo disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   보내기

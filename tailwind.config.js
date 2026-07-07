@@ -16,6 +16,7 @@ export default {
         accent: {
           indigo: '#5B6B8C', // 은은한 인디고 블루
           green: '#6B8A6E', // 차분한 그린 (대안 포인트)
+          red: '#C0392B', // 경고/초과 표시용 레드 (분명히 붉은색으로 읽히는 톤)
         },
       },
       fontFamily: {

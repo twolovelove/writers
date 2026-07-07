@@ -88,4 +88,4 @@ on conflict do nothing;
 - **데이터 격리**: `entries`/`reviews`/`admins` 테이블 모두 RLS 적용 — 본인 데이터만 접근 가능(관리자도 `entries`는 열람 불가).
 - **회원 탈퇴**: `supabase/functions/delete-account` Edge Function이 `auth.users` 계정 자체를 삭제하고, `entries`/`reviews`/`admins`는 FK cascade로 함께 정리됨(Edge Function 배포 전까지는 글 데이터만 삭제).
 
-운영·유지보수 관점의 우선순위와 아직 열려있는 작업은 [`operations/`](./operations/README.md) 폴더를 참고하세요.
+운영·유지보수 관점의 우선순위와 아직 열려있는 작업은 [`operations/`](./operations/INDEX.md) 폴더를 참고하세요.

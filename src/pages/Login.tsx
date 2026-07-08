@@ -1,9 +1,13 @@
 import { useEffect } from 'react'
-import { PenLine } from 'lucide-react'
 import { Capacitor } from '@capacitor/core'
 import { Browser } from '@capacitor/browser'
 import { App as CapacitorApp } from '@capacitor/app'
 import { supabase } from '../lib/supabaseClient'
+import { LandingHero } from '../components/landing/LandingHero'
+import { LandingStory } from '../components/landing/LandingStory'
+import { LandingSteps } from '../components/landing/LandingSteps'
+import { LandingFeatures } from '../components/landing/LandingFeatures'
+import { LandingMotivation } from '../components/landing/LandingMotivation'
 
 // 네이티브 앱에서는 구글이 인앱 WebView 내 로그인을 차단하므로, 시스템 브라우저를 띄우고
 // 이 커스텀 스킴으로 되돌아오게 한다. android/app/src/main/AndroidManifest.xml의
@@ -37,8 +41,9 @@ interface Props {
   onOpenTerms: () => void
 }
 
-// Page: 로그인 전 진입 화면. Google 계정으로 로그인하면 여러 기기에서
-// 같은 계정으로 글쓰기 기록을 이어갈 수 있다.
+// Page: 로그인 전 진입 화면 겸 랜딩페이지. 히어로에서 바로 로그인할 수 있고,
+// 아래로 스크롤하면 왜 이 앱을 쓰는지(스토리) → 어떻게 쓰는지(3단계) →
+// 무엇을 얻는지(기능) → 왜 지금 써야 하는지(동기부여)를 훑고 다시 로그인으로 이어지는 구조.
 export function Login({ onOpenPrivacy, onOpenTerms }: Props) {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return
@@ -68,42 +73,40 @@ export function Login({ onOpenPrivacy, onOpenTerms }: Props) {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-6 text-center">
-      <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-paper-cream text-accent-indigo">
-        <PenLine size={22} strokeWidth={1.5} />
-      </div>
+    <div className="min-h-screen pb-16">
+      <LandingHero onGoogleLogin={handleGoogleLogin} />
+      <LandingStory />
+      <LandingSteps />
+      <LandingFeatures />
+      <LandingMotivation />
 
-      <h1 className="text-2xl text-ink">매일 1,000자 글쓰기</h1>
-      <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-        퇴근 후 하루를 정리하듯, 짧은 글감 하나로 매일 1,000자씩 적어보세요. 로그인하면 어떤
-        기기에서든 이어서 쓸 수 있어요.
-      </p>
-
-      <button
-        type="button"
-        onClick={handleGoogleLogin}
-        className="mt-8 w-full rounded-full bg-ink py-3 text-sm tracking-wide text-paper transition-colors duration-200 hover:bg-accent-indigo"
-      >
-        Google 계정으로 계속하기
-      </button>
-
-      <div className="mt-5 flex items-center gap-3 text-xs text-ink-soft/60">
+      <section className="mx-auto flex max-w-md flex-col items-center px-6 py-6 text-center">
         <button
           type="button"
-          onClick={onOpenTerms}
-          className="underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
+          onClick={handleGoogleLogin}
+          className="w-full rounded-full bg-ink py-3 text-sm tracking-wide text-paper transition-colors duration-200 hover:bg-accent-indigo"
         >
-          이용약관
+          Google 계정으로 계속하기
         </button>
-        <span aria-hidden="true">·</span>
-        <button
-          type="button"
-          onClick={onOpenPrivacy}
-          className="underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
-        >
-          개인정보처리방침
-        </button>
-      </div>
+
+        <div className="mt-5 flex items-center gap-3 text-xs text-ink-soft/60">
+          <button
+            type="button"
+            onClick={onOpenTerms}
+            className="underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
+          >
+            이용약관
+          </button>
+          <span aria-hidden="true">·</span>
+          <button
+            type="button"
+            onClick={onOpenPrivacy}
+            className="underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
+          >
+            개인정보처리방침
+          </button>
+        </div>
+      </section>
     </div>
   )
 }

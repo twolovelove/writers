@@ -19,12 +19,12 @@ export function CompletedTodayCard({ entry, remainingMs, onView }: Props) {
 
       <h2 className="mt-5 text-xl text-ink">오늘의 글쓰기를 완료했어요</h2>
       <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-        {entry.category} 글감으로 {entry.charCount.toLocaleString()}자를 채웠어요. 내일 새로운 글감으로 다시 만나요.
+        오늘 {entry.charCount.toLocaleString()}자를 채웠어요. 내일 새로운 글로 다시 만나요.
       </p>
 
       <div className="mx-auto mt-6 flex w-fit items-center gap-2 rounded-full bg-paper px-4 py-2 text-sm text-ink-soft">
         <Hourglass size={15} strokeWidth={1.75} className="text-accent-indigo" />
-        다음 글감까지{' '}
+        다음 창작까지{' '}
         <span className="font-medium tabular-nums text-ink">{formatDuration(remainingMs)}</span>
       </div>
 

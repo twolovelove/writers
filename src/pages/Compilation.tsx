@@ -133,7 +133,6 @@ export function Compilation({ entries: allEntries, onBack }: Props) {
                     <span className="text-ink-soft">{formatShortKoreanDate(entry.date)}</span>{' '}
                     {displayTitle(entry)}
                   </span>
-                  <span className="shrink-0 text-xs text-ink-soft">{entry.category}</span>
                 </a>
               </li>
             ))}
@@ -153,7 +152,7 @@ export function Compilation({ entries: allEntries, onBack }: Props) {
             ].join(' ')}
           >
             <p className="text-xs tracking-[0.2em] text-accent-indigo">
-              {formatShortKoreanDate(entry.date)} · {entry.category}
+              {formatShortKoreanDate(entry.date)}
             </p>
             <h2 className="mt-2 text-xl text-ink">{displayTitle(entry)}</h2>
             <div

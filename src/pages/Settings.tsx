@@ -9,12 +9,20 @@ interface Props {
   onBack: () => void
   onLogout: () => void
   onOpenTerms: () => void
+  onOpenWritingPolicy: () => void
   onOpenCompilation: () => void
 }
 
 // Page: 개인정보 안내와 회원 탈퇴를 다루는 설정 화면.
 // 글 데이터는 로그인 계정에 연결되어 Supabase에만 저장되며(기기에는 남지 않음), 본인만 열람할 수 있다.
-export function Settings({ session, onBack, onLogout, onOpenTerms, onOpenCompilation }: Props) {
+export function Settings({
+  session,
+  onBack,
+  onLogout,
+  onOpenTerms,
+  onOpenWritingPolicy,
+  onOpenCompilation,
+}: Props) {
   const handleWithdraw = async () => {
     if (
       !window.confirm(
@@ -102,13 +110,22 @@ export function Settings({ session, onBack, onLogout, onOpenTerms, onOpenCompila
         </div>
       </section>
 
-      <button
-        type="button"
-        onClick={onOpenTerms}
-        className="mt-6 w-fit text-xs text-ink-soft/60 underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
-      >
-        이용약관 보기
-      </button>
+      <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
+        <button
+          type="button"
+          onClick={onOpenWritingPolicy}
+          className="w-fit text-xs text-ink-soft/60 underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
+        >
+          글쓰기 정책 보기
+        </button>
+        <button
+          type="button"
+          onClick={onOpenTerms}
+          className="w-fit text-xs text-ink-soft/60 underline-offset-2 transition-colors hover:text-ink-soft hover:underline"
+        >
+          이용약관 보기
+        </button>
+      </div>
     </div>
   )
 }

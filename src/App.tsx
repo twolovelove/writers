@@ -7,6 +7,7 @@ import { Compilation } from './pages/Compilation'
 import { Login } from './pages/Login'
 import { PrivacyPolicy } from './pages/PrivacyPolicy'
 import { TermsOfService } from './pages/TermsOfService'
+import { WritingPolicy } from './pages/WritingPolicy'
 import { Settings } from './pages/Settings'
 import { AdminReviews } from './pages/AdminReviews'
 import { useSession } from './hooks/useSession'
@@ -28,6 +29,7 @@ function App() {
   const [view, setView] = useState<View>({ name: 'dashboard' })
   const [showPrivacy, setShowPrivacy] = useState(false)
   const [showTerms, setShowTerms] = useState(false)
+  const [showWritingPolicy, setShowWritingPolicy] = useState(false)
   const { session, loading } = useSession()
   const userId = session?.user.id ?? null
   const { entries, loading: entriesLoading, upsertEntry } = useEntries(userId)
@@ -41,6 +43,9 @@ function App() {
     return <Login onOpenPrivacy={() => setShowPrivacy(true)} onOpenTerms={() => setShowTerms(true)} />
   }
   if (entriesLoading) return null
+  if (showWritingPolicy) {
+    return <WritingPolicy onBack={() => setShowWritingPolicy(false)} />
+  }
 
   if (view.name === 'editor') {
     const today = toISODate(new Date())
@@ -94,6 +99,7 @@ function App() {
         onBack={() => setView({ name: 'dashboard' })}
         onLogout={() => supabase.auth.signOut()}
         onOpenTerms={() => setShowTerms(true)}
+        onOpenWritingPolicy={() => setShowWritingPolicy(true)}
         onOpenCompilation={() => setView({ name: 'compilation', from: 'settings' })}
       />
     )

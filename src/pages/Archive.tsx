@@ -84,9 +84,7 @@ export function Archive({ entries: allEntries, onBack, onOpenEntry, onOpenCompil
                   className="w-full rounded-xl border border-paper-line bg-paper-cream/50 p-5 text-left transition-colors duration-150 hover:bg-paper-cream"
                 >
                   <div className="flex items-center justify-between text-xs text-ink-soft">
-                    <span className="tracking-wide">
-                      {formatShortKoreanDate(entry.date)} · {entry.category}
-                    </span>
+                    <span className="tracking-wide">{formatShortKoreanDate(entry.date)}</span>
                     {entry.completed && (
                       <span className="flex items-center gap-1 text-accent-green">
                         <CheckCircle2 size={13} strokeWidth={1.75} />

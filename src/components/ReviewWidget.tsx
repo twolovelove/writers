@@ -83,7 +83,7 @@ export function ReviewWidget({ session }: Props) {
           >
             <div className="mb-4 flex items-start justify-between gap-3">
               {status !== 'sent' && (
-                <p className="text-sm text-ink-soft">어떤 기능을 원하세요? 또는 잘 쓰고 계신가요?</p>
+                <p className="text-sm text-ink-soft">어떤 기능을 원하세요? 잘 쓰고 계신가요?</p>
               )}
               <button
                 type="button"

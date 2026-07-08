@@ -1,5 +1,36 @@
+import { useEffect } from 'react'
 import { PenLine } from 'lucide-react'
+import { Capacitor } from '@capacitor/core'
+import { Browser } from '@capacitor/browser'
+import { App as CapacitorApp } from '@capacitor/app'
 import { supabase } from '../lib/supabaseClient'
+
+// 네이티브 앱에서는 구글이 인앱 WebView 내 로그인을 차단하므로, 시스템 브라우저를 띄우고
+// 이 커스텀 스킴으로 되돌아오게 한다. android/app/src/main/AndroidManifest.xml의
+// 인텐트 필터와 Supabase 대시보드의 Redirect URL 허용 목록에도 동일한 값이 등록돼 있어야 한다.
+const NATIVE_REDIRECT_URL = 'com.leesarang.writer://login-callback'
+
+// Supabase가 콜백을 PKCE(`?code=`) 또는 암시적 플로우(`#access_token=...`) 중
+// 어느 쪽으로 돌려주든 세션을 완성할 수 있도록 둘 다 처리한다.
+async function completeNativeLogin(url: string) {
+  try {
+    const parsed = new URL(url)
+    const code = parsed.searchParams.get('code')
+    if (code) {
+      await supabase.auth.exchangeCodeForSession(code)
+      return
+    }
+
+    const hashParams = new URLSearchParams(parsed.hash.replace(/^#/, ''))
+    const access_token = hashParams.get('access_token')
+    const refresh_token = hashParams.get('refresh_token')
+    if (access_token && refresh_token) {
+      await supabase.auth.setSession({ access_token, refresh_token })
+    }
+  } finally {
+    Browser.close()
+  }
+}
 
 interface Props {
   onOpenPrivacy: () => void
@@ -9,7 +40,30 @@ interface Props {
 // Page: 로그인 전 진입 화면. Google 계정으로 로그인하면 여러 기기에서
 // 같은 계정으로 글쓰기 기록을 이어갈 수 있다.
 export function Login({ onOpenPrivacy, onOpenTerms }: Props) {
-  const handleGoogleLogin = () => {
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return
+
+    const listenerPromise = CapacitorApp.addListener('appUrlOpen', ({ url }) => {
+      if (!url.startsWith(NATIVE_REDIRECT_URL)) return
+      completeNativeLogin(url)
+    })
+
+    return () => {
+      listenerPromise.then((listener) => listener.remove())
+    }
+  }, [])
+
+  const handleGoogleLogin = async () => {
+    if (Capacitor.isNativePlatform()) {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: NATIVE_REDIRECT_URL, skipBrowserRedirect: true },
+      })
+      if (error || !data.url) return
+      await Browser.open({ url: data.url })
+      return
+    }
+
     supabase.auth.signInWithOAuth({ provider: 'google' })
   }
 

@@ -28,7 +28,7 @@ export function EditorToolbar({ onFormat, isPreview, onTogglePreview }: Props) {
             title={`${label} (${shortcut})`}
             disabled={isPreview}
             onClick={() => onFormat(type)}
-            className="rounded-lg p-2 text-ink-soft transition-colors duration-150 hover:bg-paper-cream hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-ink-soft transition-colors duration-150 hover:bg-paper-cream hover:text-ink disabled:cursor-not-allowed disabled:opacity-30"
           >
             <Icon size={17} strokeWidth={1.75} />
           </button>

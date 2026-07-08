@@ -96,17 +96,17 @@ export function Editor({ session, category, prompt, initialEntry, onSaved, onBac
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-12 sm:py-16">
+    <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-5 py-6 sm:px-6 sm:py-16">
       <button
         type="button"
         onClick={handleBack}
-        className="mb-8 flex w-fit items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-ink"
+        className="mb-5 flex w-fit items-center gap-1.5 text-sm text-ink-soft transition-colors hover:text-ink sm:mb-8"
       >
         <ArrowLeft size={16} strokeWidth={1.75} />
         대시보드로
       </button>
 
-      <div className="mb-6 rounded-xl bg-paper-cream/60 px-5 py-4">
+      <div className="mb-4 rounded-xl bg-paper-cream/60 px-5 py-4 sm:mb-6">
         <p className="text-xs tracking-[0.2em] text-accent-indigo">{category} · 오늘의 추천 글감</p>
         <p className="mt-1 text-base text-ink">{prompt.title}</p>
         <p className="mt-2 text-sm leading-relaxed text-ink-soft">{prompt.description}</p>
@@ -131,11 +131,11 @@ export function Editor({ session, category, prompt, initialEntry, onSaved, onBac
           </div>
         )}
 
-        <div className="min-h-[420px] px-6 py-6 sm:px-8">
+        <div className="min-h-[220px] px-5 py-5 sm:min-h-[420px] sm:px-8 sm:py-6">
           {isPreview && title && <h2 className="mb-4 text-xl text-ink">{title}</h2>}
           {isPreview ? (
             <div
-              className="prose-paper min-h-[420px] text-lg leading-[2.1] text-ink"
+              className="prose-paper min-h-[220px] text-lg leading-[2.1] text-ink sm:min-h-[420px]"
               dangerouslySetInnerHTML={{ __html: renderPreview(content) || '<p class="text-ink-soft">아직 쓴 내용이 없습니다.</p>' }}
             />
           ) : (
@@ -145,13 +145,13 @@ export function Editor({ session, category, prompt, initialEntry, onSaved, onBac
               onChange={(e) => setContent(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="원고지를 펼치듯, 오늘 떠오른 생각을 편하게 적어보세요."
-              className="min-h-[420px] w-full resize-none bg-transparent text-lg leading-[2.1] text-ink placeholder:text-ink-soft/60 focus:outline-none"
+              className="min-h-[220px] w-full resize-none bg-transparent text-lg leading-[2.1] text-ink placeholder:text-ink-soft/60 focus:outline-none sm:min-h-[420px]"
             />
           )}
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col gap-3">
+      <div className="mt-4 flex flex-col gap-3 sm:mt-6">
         <div className="flex items-center justify-between">
           <span
             className={[

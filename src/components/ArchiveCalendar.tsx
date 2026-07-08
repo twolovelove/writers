@@ -41,12 +41,12 @@ export function ArchiveCalendar({ entries, selectedDate, onSelectDate }: Props) 
   }
 
   return (
-    <div className="mb-8 rounded-2xl border border-paper-line bg-paper-cream/40 p-5">
+    <div className="mb-8 rounded-2xl border border-paper-line bg-paper-cream/40 p-3 sm:p-5">
       <div className="mb-4 flex items-center justify-between">
         <button
           type="button"
           onClick={() => changeMonth(-1)}
-          className="rounded-full p-1.5 text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
           aria-label="이전 달"
         >
           <ChevronLeft size={16} strokeWidth={1.75} />
@@ -57,7 +57,7 @@ export function ArchiveCalendar({ entries, selectedDate, onSelectDate }: Props) 
         <button
           type="button"
           onClick={() => changeMonth(1)}
-          className="rounded-full p-1.5 text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+          className="flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
           aria-label="다음 달"
         >
           <ChevronRight size={16} strokeWidth={1.75} />
@@ -88,7 +88,7 @@ export function ArchiveCalendar({ entries, selectedDate, onSelectDate }: Props) 
               disabled={!hasDraft}
               onClick={() => onSelectDate(isSelected ? null : iso)}
               className={[
-                'mx-auto flex h-8 w-8 flex-col items-center justify-center rounded-full text-xs transition-colors duration-150',
+                'mx-auto flex h-10 w-10 flex-col items-center justify-center rounded-full text-xs transition-colors duration-150',
                 isSelected
                   ? 'bg-accent-indigo text-paper'
                   : isToday

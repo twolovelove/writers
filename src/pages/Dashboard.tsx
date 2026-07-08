@@ -66,7 +66,7 @@ export function Dashboard({
             onClick={onOpenArchive}
             title="내가 쓴 글"
             aria-label="내가 쓴 글"
-            className="flex items-center justify-center rounded-full p-2.5 text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
           >
             <BookOpen size={18} strokeWidth={1.75} />
           </button>
@@ -76,7 +76,7 @@ export function Dashboard({
               onClick={onOpenAdmin}
               title="관리자"
               aria-label="관리자"
-              className="flex items-center justify-center rounded-full p-2.5 text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
             >
               <ShieldCheck size={18} strokeWidth={1.75} />
             </button>
@@ -86,7 +86,7 @@ export function Dashboard({
             onClick={onOpenSettings}
             title="설정"
             aria-label="설정"
-            className="flex items-center justify-center rounded-full p-2.5 text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
+            className="flex h-11 w-11 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-paper-cream hover:text-ink"
           >
             <SettingsIcon size={18} strokeWidth={1.75} />
           </button>

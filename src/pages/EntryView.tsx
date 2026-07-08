@@ -1,7 +1,9 @@
-import { ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowLeft, CheckCircle2, FileCode, FileDown, ImageDown } from 'lucide-react'
 import { renderPreview } from '../utils/textFormat'
 import { formatShortKoreanDate } from '../utils/date'
 import { displayTitle } from '../utils/archive'
+import { downloadImageCard, downloadTextExport } from '../utils/exportEntry'
 import { FeedbackPanel } from '../components/FeedbackPanel'
 import type { DraftEntry } from '../types'
 
@@ -13,6 +15,16 @@ interface Props {
 // Page: 지난 글 또는 오늘 완료한 글을 읽기 전용으로 보여주는 화면.
 // 하루의 글쓰기는 그 날로 마무리된다는 의미에서 수정은 지원하지 않는다.
 export function EntryView({ entry, onBack }: Props) {
+  const [creatingCard, setCreatingCard] = useState(false)
+
+  const handleCardExport = async () => {
+    setCreatingCard(true)
+    try {
+      await downloadImageCard(entry)
+    } finally {
+      setCreatingCard(false)
+    }
+  }
 
   return (
     <div className="mx-auto flex min-h-screen max-w-3xl flex-col px-6 py-12 sm:py-16">
@@ -47,6 +59,35 @@ export function EntryView({ entry, onBack }: Props) {
             오늘의 글쓰기 완료
           </span>
         )}
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        <span className="text-xs text-ink-soft">내보내기</span>
+        <button
+          type="button"
+          onClick={() => downloadTextExport(entry, 'txt')}
+          className="flex items-center gap-1.5 rounded-full border border-paper-line px-3 py-1.5 text-xs text-ink-soft transition-colors hover:text-ink"
+        >
+          <FileDown size={13} strokeWidth={1.75} />
+          TXT
+        </button>
+        <button
+          type="button"
+          onClick={() => downloadTextExport(entry, 'md')}
+          className="flex items-center gap-1.5 rounded-full border border-paper-line px-3 py-1.5 text-xs text-ink-soft transition-colors hover:text-ink"
+        >
+          <FileCode size={13} strokeWidth={1.75} />
+          Markdown
+        </button>
+        <button
+          type="button"
+          onClick={handleCardExport}
+          disabled={creatingCard}
+          className="flex items-center gap-1.5 rounded-full border border-paper-line px-3 py-1.5 text-xs text-ink-soft transition-colors hover:text-ink disabled:opacity-50"
+        >
+          <ImageDown size={13} strokeWidth={1.75} />
+          {creatingCard ? '카드 만드는 중…' : '이미지 카드'}
+        </button>
       </div>
 
       {entry.feedback && entry.feedback.length > 0 && <FeedbackPanel items={entry.feedback} />}

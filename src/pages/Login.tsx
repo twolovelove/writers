@@ -1,9 +1,11 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { Browser } from '@capacitor/browser'
 import { App as CapacitorApp } from '@capacitor/app'
 import { supabase } from '../lib/supabaseClient'
+import { detectInAppBrowser, openInExternalBrowser } from '../utils/inAppBrowser'
 import { LandingHero } from '../components/landing/LandingHero'
+import { InAppBrowserNotice } from '../components/landing/InAppBrowserNotice'
 import { LandingStory } from '../components/landing/LandingStory'
 import { LandingSteps } from '../components/landing/LandingSteps'
 import { LandingFeatures } from '../components/landing/LandingFeatures'
@@ -45,6 +47,8 @@ interface Props {
 // 아래로 스크롤하면 왜 이 앱을 쓰는지(스토리) → 어떻게 쓰는지(3단계) →
 // 무엇을 얻는지(기능) → 왜 지금 써야 하는지(동기부여)를 훑고 다시 로그인으로 이어지는 구조.
 export function Login({ onOpenPrivacy, onOpenTerms }: Props) {
+  const inAppBrowser = useMemo(() => detectInAppBrowser(), [])
+
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return
 
@@ -59,6 +63,11 @@ export function Login({ onOpenPrivacy, onOpenTerms }: Props) {
   }, [])
 
   const handleGoogleLogin = async () => {
+    if (inAppBrowser === 'kakaotalk') {
+      openInExternalBrowser()
+      return
+    }
+
     if (Capacitor.isNativePlatform()) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -74,13 +83,15 @@ export function Login({ onOpenPrivacy, onOpenTerms }: Props) {
 
   return (
     <div className="min-h-screen pb-16">
-      <LandingHero onGoogleLogin={handleGoogleLogin} />
+      <LandingHero onGoogleLogin={handleGoogleLogin} inAppBrowser={inAppBrowser} />
       <LandingStory />
       <LandingSteps />
       <LandingFeatures />
       <LandingMotivation />
 
       <section className="mx-auto flex max-w-md flex-col items-center px-6 py-6 text-center">
+        <InAppBrowserNotice browser={inAppBrowser} />
+
         <button
           type="button"
           onClick={handleGoogleLogin}
